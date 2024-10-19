@@ -5,6 +5,7 @@ from arcadepy import Arcade
 from arcadepy.types.shared import ToolDefinition
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import StructuredTool
+from langgraph.errors import NodeInterrupt
 from pydantic import BaseModel, Field, ValidationError, create_model
 
 TYPE_MAPPING = {
@@ -64,9 +65,7 @@ class ArcadeToolSet:
                         user_id=user_id,
                     )
                     if auth_response.status != "completed":
-                        return {
-                            "output": "Please use the following link to authorize: " + auth_response.authorization_url,
-                        }
+                        raise NodeInterrupt("Please use the following link to authorize: " + auth_response.authorization_url)
 
                 # Execute the tool with provided inputs
                 inputs_json = json.dumps(kwargs)
