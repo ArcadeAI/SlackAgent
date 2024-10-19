@@ -1,9 +1,6 @@
 import logging
-from logging import Logger
-from typing import Callable
 
 from fastapi import FastAPI, Request
-from slack_bolt import BoltResponse
 
 #from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
 #from slack_bolt.async_app import AsyncApp
