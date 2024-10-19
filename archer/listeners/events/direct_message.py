@@ -4,9 +4,8 @@ from slack_bolt import Say
 from slack_sdk import WebClient
 
 from archer.agent import invoke_agent
-from archer.agent.constants import DM_SYSTEM_CONTENT
 from archer.listeners.utils import parse_conversation
-from archer.prompts import DEFAULT_LOADING_TEXT
+from archer.prompts import DEFAULT_LOADING_TEXT, DM_SYSTEM_CONTENT
 
 
 def direct_message_callback(client: WebClient, event: dict, logger: Logger, say: Say):

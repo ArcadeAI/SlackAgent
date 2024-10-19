@@ -8,5 +8,5 @@ from archer.listeners.commands.command import command_callback
 
 
 def register_commands(app: "App"):
-    app.command(f"/{BOT_NAME}")(command_callback)
+    app.command(f"/ask-{BOT_NAME}")(command_callback)
 

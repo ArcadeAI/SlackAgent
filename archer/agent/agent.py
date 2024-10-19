@@ -22,11 +22,11 @@ class State(TypedDict):
 class ChatbotGraph:
 	def __init__(
  	   self,
-		llm: BaseLanguageModel = ChatOpenAI,
 		model: str = "gpt-4o",
 	):
 		# Initialize the LLM with the specified model
-		self.llm = llm(
+		print(f"Using model: {model}")
+		self.llm = ChatOpenAI(
 			model=model,
 		)
 

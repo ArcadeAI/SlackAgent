@@ -1,10 +1,11 @@
 from logging import Logger
 
-from agent import invoke_agent
-from slack_bolt import Ack, Respond, WebhookResponse
+from slack_bolt import Ack, Respond
+
+from archer.agent import invoke_agent
 
 
-def command_callback(ack: Ack, respond: Respond, request: dict, logger: Logger) -> WebhookResponse:
+def command_callback(ack: Ack, respond: Respond, request: dict, logger: Logger):
 	"""
 	Callback for handling a / command
 	"""

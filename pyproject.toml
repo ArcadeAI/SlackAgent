@@ -17,6 +17,9 @@ python = ">=3.10,<4.0"
 arcadepy = "~0.0.11"
 slack-bolt = "~1.20.1"
 arcade-ai = { version = "~0.0.14", extras= ["fastapi"] }
+langgraph = "^0.2.0"
+langchain = "^0.3.0"
+langchain-openai = "~0.2.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.2"
@@ -47,8 +50,7 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["arcade"]
-omit = ["arcade/cli/*"]
+source = ["archer"]
 
 [tool.coverage.report]
 skip_empty = true

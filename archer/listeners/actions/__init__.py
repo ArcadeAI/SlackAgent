@@ -1,7 +1,10 @@
-from slack_bolt import App
+from typing import TYPE_CHECKING
 
-from archer.listeners.actions.set_user_settings import set_user_settings
+if TYPE_CHECKING:
+    from slack_bolt import App
+
+from archer.listeners.actions.user_settings import set_user_settings
 
 
-def register_actions(app: App):
+def register_actions(app: "App"):
     app.action("Model")(set_user_settings)

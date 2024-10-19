@@ -16,17 +16,13 @@ class StorageConnectionError(StorageError):
 
 class StateStore:
 
-	@classmethod
-	def init_or_connect(cls) -> "StateStore":
+	def set_state(self, user_identity: "UserIdentity") -> None:
 		pass
 
-	def set_state(self, user_identity: UserIdentity) -> None:
+	def get_state(self, user_id: str) -> "UserIdentity":
 		pass
 
-	def get_state(self, user_id: str) -> UserIdentity:
-		pass
-
-	def update_state(self, user_identity: UserIdentity) -> None:
+	def update_state(self, user_identity: "UserIdentity") -> None:
 		pass
 
 
