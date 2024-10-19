@@ -1,8 +1,6 @@
-import os
 from typing import Annotated
 
 from arcadepy import Arcade
-from langchain_core.language_models.base import BaseLanguageModel
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
@@ -92,14 +90,3 @@ class ChatbotGraph:
 	def get_graph(self):
 		return self.graph
 
-
-if __name__ == "__main__":
-	config = {
-		"configurable": {
-			"user_id": os.environ.get("ARCADE_USER_ID", "sam@arcade-ai.com"),
-		}
-	}
-	ChatbotGraph().get_graph().invoke(
-		{"messages": [{"role": "user", "content": "Hello, how are you?"}]},
-		config=config
-	)

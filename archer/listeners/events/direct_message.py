@@ -36,5 +36,5 @@ def direct_message_callback(client: WebClient, event: dict, logger: Logger, say:
     except Exception as e:
         logger.error(e)
         client.chat_update(
-            channel=channel_id, ts=waiting_message["ts"], text=f"Received an error from Archy:\n{e}"
+            channel=channel_id, ts=waiting_message["ts"], text=f"Received an error:\n{e}"
         )
