@@ -11,7 +11,7 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
     if event["tab"] != "home":
         return
 
-    # create a list of options for the dropdown menu each containing the model name and provider
+    # Create a list of options for the dropdown menu
     options = [
         {
             "text": {
@@ -24,18 +24,19 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
         for model_name, model_info in get_available_models().items()
     ]
 
-    # retrieve user's state to determine if they already have a selected model
-    user_state = get_user_state(event["user"])
-    initial_option = None
-
-    if user_state:
-        initial_option = list(filter(lambda x: x["value"].startswith(user_state["model"]), options))
-    else:
-        # add an empty option if the user has no previously selected model.
-        options.append({
-            "text": {"type": "plain_text", "text": "Select a model", "emoji": True},
-            "value": "null",
-        })
+    # Retrieve user's state to determine if they already have a selected model
+    initial_model = get_user_state(event["user"])["model"]
+    try:
+        # Find the first option that matches the initial_model
+        initial_option = next(
+            (option for option in options if option["value"].startswith(initial_model)),
+            None
+        )
+        if initial_option is None:
+            initial_option = options[-1]
+    except Exception as e:
+        logger.error(e)
+        initial_option = options[-1]
 
     try:
         client.views_publish(
