@@ -1,4 +1,5 @@
 import logging
+from typing import Callable
 
 from fastapi import FastAPI, Request
 
@@ -6,11 +7,12 @@ from fastapi import FastAPI, Request
 #from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi import SlackRequestHandler
 from slack_bolt.app import App
+from slack_bolt.response import BoltResponse
 
 from archer.constants import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
 from archer.listeners import register_listeners
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 slack_app = App(
@@ -22,10 +24,10 @@ slack_app = App(
 register_listeners(slack_app)
 
 
-#@slack_app.middleware
-#def log_request(logger: Logger, body: dict, next: Callable[[], BoltResponse]) -> BoltResponse:
-#    logger.debug(body)
-#    return next()
+@slack_app.middleware
+def log_request(logger: logging.Logger, body: dict, next: Callable[[], BoltResponse]) -> BoltResponse:
+    logger.info(body)
+    return next()
 
 # register all the events, actions, commands, and function listeners
 
