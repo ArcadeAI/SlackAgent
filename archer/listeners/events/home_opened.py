@@ -25,11 +25,11 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
     ]
 
     # retrieve user's state to determine if they already have a selected model
-    user_state = get_user_state(event["user"], True)
+    user_state = get_user_state(event["user"])
     initial_option = None
 
     if user_state:
-        initial_model = get_user_state(event["user"], True)[1]
+        initial_model = user_state["model"]
         # set the initial option to the user's previously selected model
         initial_option = list(filter(lambda x: x["value"].startswith(initial_model), options))
     else:
