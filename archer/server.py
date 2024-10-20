@@ -15,25 +15,24 @@ from archer.listeners import register_listeners
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-slack_app = App(
-  name="Archer",
-  logger=logger,
-  signing_secret=SLACK_SIGNING_SECRET,
-  token=SLACK_BOT_TOKEN
-)
-register_listeners(slack_app)
+def create_slack_app():
+    slack_app = App(
+        name="Archer",
+        logger=logger,
+        signing_secret=SLACK_SIGNING_SECRET,
+        token=SLACK_BOT_TOKEN
+    )
 
+    @slack_app.middleware
+    def log_request(logger: logging.Logger, body: dict, next: Callable[[], BoltResponse]) -> BoltResponse:
+        logger.info(body)
+        return next()
+    register_listeners(slack_app)
+    return slack_app
 
-@slack_app.middleware
-def log_request(logger: logging.Logger, body: dict, next: Callable[[], BoltResponse]) -> BoltResponse:
-    logger.info(body)
-    return next()
-
+slack_app = create_slack_app()
 # register all the events, actions, commands, and function listeners
-
-# Create a SlackRequestHandler
 fastapi_handler = SlackRequestHandler(slack_app)
-
 fastapi_app = FastAPI()
 
 # Define an endpoint to receive Slack requests
