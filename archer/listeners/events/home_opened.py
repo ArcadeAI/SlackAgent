@@ -29,9 +29,7 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
     initial_option = None
 
     if user_state:
-        initial_model = user_state["model"]
-        # set the initial option to the user's previously selected model
-        initial_option = list(filter(lambda x: x["value"].startswith(initial_model), options))
+        initial_option = list(filter(lambda x: x["value"].startswith(user_state["model"]), options))
     else:
         # add an empty option if the user has no previously selected model.
         options.append({
@@ -74,10 +72,8 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
                         "elements": [
                             {
                                 "type": "static_select",
-                                "initial_option": initial_option[0]
-                                if initial_option
-                                else options[-1],
                                 "options": options,
+                                "initial_option": initial_option,
                                 "action_id": "Model",
                             }
                         ],

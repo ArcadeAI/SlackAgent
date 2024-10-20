@@ -67,7 +67,9 @@ class FileStore(StateStore):
             self.logger.error(f"Failed to get state for {user_id} - {e}")
             raise StorageResourceError(f"Failed to get state for {user_id} - {e}")
 
-    def exists(self, user_id: str) -> bool:
+    def exists(self, user_id: str | UserIdentity) -> bool:
+        if not isinstance(user_id, str):
+            user_id = user_id["user_id"]
         filepath = os.path.join(self.base_dir, self._user_id_to_filename(user_id))
         return os.path.exists(filepath)
 
