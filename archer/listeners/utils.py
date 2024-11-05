@@ -16,10 +16,11 @@ def parse_conversation(conversation: SlackResponse) -> Optional[List[dict]]:
     parsed = []
     try:
         for message in conversation:
-            user = message["user"]
+            user_id = message["user"]
+            role = "user" if message["user"] == user_id else "assistant"
             text = message["text"]
-            parsed.append({"user": user, "text": text})
+            parsed.append({"role": role, "content": text})
         return parsed
     except Exception as e:
         logger.error(e)
-        return None
+    return None

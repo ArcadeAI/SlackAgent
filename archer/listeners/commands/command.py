@@ -1,11 +1,12 @@
 from logging import Logger
 
 from slack_bolt import Ack, Respond
+from slack_sdk import WebClient
 
 from archer.agent import invoke_agent
 
 
-def command_callback(ack: Ack, respond: Respond, request: dict, logger: Logger):
+def command_callback(ack: Ack, respond: Respond, request: dict, logger: Logger, client: WebClient):
 	"""
 	Callback for handling a / command
 	"""
@@ -19,11 +20,16 @@ def command_callback(ack: Ack, respond: Respond, request: dict, logger: Logger):
 			# Acknowledge without a message
 			ack()
 			user_id = request["user_id"]
-			response_text = invoke_agent(user_id, prompt)
+			response_text = invoke_agent(
+				user_id,
+				prompt,
+				slack_client=client
+			)
 			# Respond to the user
 			respond(response_text)
 	except Exception as e:
-		logger.exception(f"Error in command_callback for command: {request['text']} from user: {request['user_id']}, error: {e}")
+		logger.exception(
+			f"Error in command_callback for command: {request['text']} from user: {request['user_id']}, error: {e}"
+		)
 		# Notify the user about the error
 		respond("Looks like something went wrong. Please try again.")
-

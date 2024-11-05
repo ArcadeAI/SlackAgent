@@ -1,14 +1,20 @@
 import os
 
-MODELS = {
-	"gpt-4-turbo": {"name": "GPT-4 Turbo", "provider": "OpenAI", "max_tokens": 4096},
-	"gpt-4": {"name": "GPT-4", "provider": "OpenAI", "max_tokens": 4096},
-	"gpt-4o": {"name": "GPT-4o", "provider": "OpenAI", "max_tokens": 128000},
-	"gpt-4o-mini": {"name": "GPT-4o mini", "provider": "OpenAI", "max_tokens": 128000},
-}
+# High level constants
 
-def get_available_models():
-    return MODELS
+BOT_NAME = "Archer"
+STORAGE_TYPE = os.environ.get("STORAGE_TYPE", "file")
+FILE_STORAGE_BASE_DIR = os.environ.get("FILE_STORAGE_BASE_DIR", "/tmp/")
+
+REDACTION_ENABLED = bool(os.environ.get("REDACTION_ENABLED", True))
+
+ARCADE_API_KEY = os.environ.get("ARCADE_API_KEY", "")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
+SLACK_APP_TOKEN = os.environ.get("SLACK_APP_TOKEN", "")
+SLACK_SIGNING_SECRET = os.environ.get("SLACK_SIGNING_SECRET", "")
+
 
 # Redaction patterns
 #

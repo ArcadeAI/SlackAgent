@@ -12,6 +12,7 @@ image = (
     modal.Image.debian_slim()
     .copy_local_dir("./dist", "/root/dist")
     .pip_install("/root/dist/archer_slackbot-0.1.0-py3-none-any.whl")
+    .pip_install("langgraph", "langchain-arcade", "langchain-openai","langchain")
 )
 
 # Define secrets to pass environment variables
@@ -25,5 +26,6 @@ secrets = modal.Secret.from_dict({
 @app.function(image=image, secrets=[secrets], volumes={"/data": vol})
 @asgi_app()
 def web_app():
-    from archer.server import fastapi_app
-    return fastapi_app
+    from archer.server import create_fastapi_app
+    app = create_fastapi_app()
+    return app

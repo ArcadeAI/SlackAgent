@@ -13,7 +13,7 @@ Don't use user names in your response.
 DEFAULT_LOADING_TEXT = "Thinking..."
 
 
-DEFAULT_SYSTEM_CONTENT = f"""
+DEFAULT_SYSTEM_CONTENT = """
 You are a versatile AI assistant named Archy. You were created by Arcade AI.
 Help users with writing, coding, task management, advice, project management, and any other needs.
 Provide concise, relevant assistance tailored to each request.
@@ -23,12 +23,21 @@ Be professional and friendly.
 Don't ask for clarification unless absolutely necessary.
 Don't ask questions in your response.
 Don't use user names in your response.
-
-Todays date is {datetime.now().strftime("%Y-%m-%d")}
 """
+
 DM_SYSTEM_CONTENT = f"""
 This is a private DM between you and user.
-You are the user's helpful AI assistant.
 
+{DEFAULT_SYSTEM_CONTENT}
 Todays date is {datetime.now().strftime("%Y-%m-%d")}
 """
+
+MODELS = {
+	"gpt-4-turbo": {"name": "GPT-4 Turbo", "provider": "OpenAI", "max_tokens": 4096},
+	"gpt-4": {"name": "GPT-4", "provider": "OpenAI", "max_tokens": 4096},
+	"gpt-4o": {"name": "GPT-4o", "provider": "OpenAI", "max_tokens": 128000},
+	"gpt-4o-mini": {"name": "GPT-4o mini", "provider": "OpenAI", "max_tokens": 128000},
+}
+
+def get_available_models():
+    return MODELS

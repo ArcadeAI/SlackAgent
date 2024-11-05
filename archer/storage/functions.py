@@ -1,10 +1,9 @@
 import logging
-from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from archer.constants import FILE_STORAGE_BASE_DIR, STORAGE_TYPE
+from archer.env import FILE_STORAGE_BASE_DIR, STORAGE_TYPE
 from archer.storage.file import FileStore
-from archer.storage.schema import StorageResourceError, UserIdentity
+from archer.storage.schema import UserIdentity
 
 if TYPE_CHECKING:
     from archer.storage.schema import StateStore

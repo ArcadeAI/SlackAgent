@@ -3,7 +3,7 @@ from logging import Logger
 from slack_sdk import WebClient
 
 from archer.agent import get_available_models
-from archer.constants import BOT_NAME
+from archer.env import BOT_NAME  # TODO: move to defaults
 from archer.storage.functions import get_user_state
 
 
