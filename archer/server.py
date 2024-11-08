@@ -14,7 +14,7 @@ from slack_bolt.response import BoltResponse
 from archer.env import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
 from archer.listeners import register_listeners
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
 # Thread-safe deque to store processed event IDs
@@ -35,7 +35,7 @@ def create_slack_app():
         event_id = req.body.get("event_id")
         event_type = req.body.get("event", {}).get("type")
 
-        if event_type == "message" and event_id:
+        if event_type in ["message", "app_mention"] and event_id:
             with event_lock:
                 if event_id in processed_events:
                     logger.info(

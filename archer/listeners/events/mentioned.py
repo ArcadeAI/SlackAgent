@@ -1,4 +1,5 @@
 from logging import Logger
+from typing import Any
 
 from slack_bolt import Say
 from slack_sdk import WebClient
@@ -13,7 +14,13 @@ from archer.env import BOT_NAME  # TODO: move to defaults
 from archer.listeners.utils import parse_conversation
 
 
-def app_mentioned_callback(client: WebClient, event: dict, logger: Logger, say: Say):
+def app_mentioned_callback(
+    ack: Any, client: WebClient, event: dict, logger: Logger, say: Say
+):
+    ack()
+    logger.info(f"Event: {event}")
+    if event.get("subtype") == "message_deleted":
+        return
     try:
         channel_id = event.get("channel")
         thread_ts = event.get("thread_ts")

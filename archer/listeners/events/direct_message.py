@@ -4,6 +4,7 @@ from slack_bolt import Say
 from slack_sdk import WebClient
 
 from archer.agent import invoke_agent
+from archer.agent.utils import markdown_to_slack
 from archer.defaults import DEFAULT_LOADING_TEXT, DM_SYSTEM_CONTENT
 from archer.listeners.utils import parse_conversation
 
@@ -43,7 +44,9 @@ def direct_message_callback(client: WebClient, event: dict, logger: Logger, say:
             )
             replied = True
             client.chat_update(
-                channel=channel_id, ts=waiting_message["ts"], text=response
+                channel=channel_id,
+                ts=waiting_message["ts"],
+                text=markdown_to_slack(response),
             )
         except Exception as e:
             logger.error(f"Error in direct_message_callback: {e}")
