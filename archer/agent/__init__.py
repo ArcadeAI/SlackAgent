@@ -1,7 +1,9 @@
 import logging
+from functools import lru_cache
 from typing import Optional
 
 from archer.agent.agent import LangGraphAgent
+from archer.agent.base import BaseAgent
 from archer.agent.utils import markdown_to_slack, redact_string, slack_to_markdown
 from archer.defaults import DEFAULT_SYSTEM_CONTENT, MODELS
 from archer.storage.functions import get_user_state
@@ -9,11 +11,14 @@ from archer.storage.functions import get_user_state
 logger = logging.getLogger(__name__)
 
 
-def get_available_models():
+def get_available_models() -> list[dict[str, str]]:  # TODO type this
     return MODELS
 
-def get_agent(model: str = "gpt-4o"):
+
+def get_agent(model: str = "gpt-4o") -> BaseAgent:
+    logger.debug(f"Initializing Agent using model: {model}")
     return LangGraphAgent(model=model)
+
 
 def invoke_agent(
     user_id: str,
@@ -43,17 +48,38 @@ def invoke_agent(
             state,
             config={
                 "user_id": user_id,
-            }
+            },
         )
-        if 'interrupt_message' in response_state:
-            resp = markdown_to_slack(redact_string(response_state['interrupt_message']))
+        print(response_state)
+
+        # Check for 'auth_url' in response_state
+        if "auth_url" in response_state and response_state["auth_url"]:
+            auth_url = response_state["auth_url"]
+            logger.debug(f"Auth URL found: {auth_url}")
+            return auth_url
+
+        # Check for 'interrupt_message' in response_state
+        if (
+            "interrupt_message" in response_state
+            and response_state["interrupt_message"]
+        ):
+            resp = response_state["interrupt_message"]
             return resp
 
-        response_message = response_state["messages"][-1]
-        resp_content = response_message.content
-        resp = markdown_to_slack(redact_string(resp_content))
-        return resp
-    except Exception:
-        logger.exception("Error generating response")
-        raise
+        # Ensure 'messages' is in response_state and has content
+        if "messages" in response_state and response_state["messages"]:
+            response_message = response_state["messages"][-1]
+            if response_message.content:
+                resp_content = response_message.content
+                resp = markdown_to_slack(redact_string(resp_content))
+                return resp
+            else:
+                logger.error("Response message content is empty.")
+                return "An error occurred: response content is empty."
+        else:
+            logger.error("No messages found in response state.")
+            return "An error occurred: no response messages available."
 
+    except Exception as e:
+        logger.exception(f"Error generating response: {e}")
+        return "An unexpected error occurred while processing your request."
