@@ -43,11 +43,7 @@
       "bot_events": [
         "app_home_opened",
         "app_mention",
-        "function_executed",
-        "message.channels",
-        "message.groups",
-        "message.im",
-        "message.mpim"
+        "message.im"
       ]
     },
     "interactivity": {
@@ -55,7 +51,6 @@
     },
     "org_deploy_enabled": true,
     "socket_mode_enabled": false,
-    "token_rotation_enabled": false,
-    "function_runtime": "remote"
+    "token_rotation_enabled": false
   }
 }

@@ -1,92 +1,118 @@
-from typing import Annotated
+import logging
 
-from arcadepy import Arcade
+from langchain_arcade import ArcadeToolManager
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from langgraph.graph import END, START, StateGraph
-from langgraph.graph.message import add_messages
+from langgraph.errors import NodeInterrupt
+from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
-from typing_extensions import TypedDict
 
-from archer.agent.utils import ArcadeToolSet
-from archer.constants import ARCADE_API_KEY
+from archer.agent.base import BaseAgent
 
-
-# Define the State TypedDict
-class State(TypedDict):
-	messages: Annotated[list, add_messages]
+logger = logging.getLogger(__name__)
 
 
-# Define the ChatbotGraph class
-class ChatbotGraph:
-	def __init__(
- 	   self,
-		model: str = "gpt-4o",
-	):
-		# Initialize the LLM with the specified model
-		print(f"Using model: {model}")
-		self.llm = ChatOpenAI(
-			model=model,
-		)
+class AgentState(MessagesState):
+    auth_url: str | None = None
 
-		client = Arcade(api_key=ARCADE_API_KEY)
 
-		# Initialize Arcade tools
-		self.tools = ArcadeToolSet(client).get_tools()
-		self.llm_with_tools = self.llm.bind_tools(self.tools)
+class LangGraphAgent(BaseAgent):
+    """
+    An agent that uses LangGraph to process messages and manage tools.
+    """
 
-		# Setup the graph with tools
-		self.setup_graph()
+    def __init__(
+        self, model: str = "gpt-4", tools: list[str] = None
+    ):  # TODO: add other providers
+        super().__init__(model=model)
+        self.llm = ChatOpenAI(model=model)
+        self.prompt = ChatPromptTemplate.from_messages(
+            [
+                ("placeholder", "{messages}"),
+            ]
+        )
+        self.manager = ArcadeToolManager()
+        self.tools = self.manager.get_tools(langgraph=True)
+        self.tool_node = ToolNode(self.tools)
+        self.llm_with_tools = self.llm.bind_tools(self.tools)
+        self.prompted_model = self.prompt | self.llm_with_tools
+        self.setup_graph()
 
-	def chatbot_node(self, state: State):
-		# Use the LLM with tools to generate a response
-		ai_message = self.llm_with_tools.invoke(state["messages"])
-		# Update the state with the assistant's message
-		return {"messages": state["messages"] + [ai_message]}
+    def invoke(self, state: dict, config: dict) -> dict:
+        """
+        Process the given state and configuration, and return the new state.
+        """
+        try:
+            result = self.graph.invoke(state, config=config)
+            return result
+        except NodeInterrupt as e:
+            logger.info(f"Authorization required: {e}")
+            # Add the interrupt message to the state
+            state["interrupt_message"] = str(e)
+            return state
+        except Exception as e:
+            logger.exception("Error during agent invocation")
+            raise e
 
-	def setup_graph(self):
-		# Initialize the state graph
-		self.graph_builder = StateGraph(state_schema=State)
+    def call_agent(self, state: AgentState, config: dict) -> dict:
+        """
+        Use the LLM with tools to generate a response and update the state.
+        """
+        messages = state["messages"]
+        # Generate response using the prompted model
+        response = self.prompted_model.invoke({"messages": messages})
+        # Update the state with the assistant's message
+        return {"messages": [response]}
 
-		# Add the chatbot node
-		self.graph_builder.add_node("chatbot", self.chatbot_node)
+    def should_continue(self, state: AgentState, config: dict) -> str:
+        """
+        Determine the next node based on the presence of tool calls.
+        """
+        last_message = state["messages"][-1]
+        if last_message.tool_calls:
+            return "check_auth"
+        # If no tool calls are present, end the workflow
+        return END
 
-		# Add the tools node
-		tool_node = ToolNode(tools=self.tools)
-		self.graph_builder.add_node("tools", tool_node)
+    def check_auth(self, state: AgentState, config: dict):
+        user_id = config["configurable"].get("user_id")
+        tool_name = state["messages"][-1].tool_calls[0]["name"]
+        auth_response = self.manager.authorize(tool_name, user_id)
+        if auth_response.status != "completed":
+            return {"auth_url": auth_response.authorization_url}
+        else:
+            return {"auth_url": None}
 
-		# Define entry and exit points
-		self.graph_builder.add_edge(START, "chatbot")
-		self.graph_builder.add_edge("chatbot", END)
+    def authorize(self, state: AgentState, config: dict) -> AgentState:
+        """
+        Handle tool authorization by raising a NodeInterrupt with the auth message.
+        """
+        if state.get("auth_url"):
+            auth_message = f"Please authorize access to the tool by visiting this URL:\n\n{state['auth_url']}"
+            # Raise NodeInterrupt with the auth message
+            raise NodeInterrupt(auth_message)
+        return state
 
-		# Define the routing function
-		def route_tools(state: State):
-			"""
-			Use in the conditional_edge to route to the ToolNode if the last message
-			has tool calls. Otherwise, route to the end.
-			"""
-			if isinstance(state, list):
-				ai_message = state[-1]
-			elif messages := state.get("messages", []):
-				ai_message = messages[-1]
-			else:
-				raise ValueError(f"No messages found in input state to tool_edge: {state}")
-			if hasattr(ai_message, "tool_calls") and len(ai_message.tool_calls) > 0:
-				return "tools"
-			return END
+    def setup_graph(self) -> None:
+        """
+        Build the conversation workflow graph.
+        """
+        self.workflow = StateGraph(AgentState)
 
-		# Add conditional edges based on tool calls
-		self.graph_builder.add_conditional_edges(
-			"chatbot",
-			route_tools,
-			{"tools": "tools", END: END},
-		)
+        # Add nodes to the graph
+        self.workflow.add_node("agent", self.call_agent)
+        self.workflow.add_node("tools", self.tool_node)
+        self.workflow.add_node("authorize", self.authorize)
+        self.workflow.add_node("check_auth", self.check_auth)
 
-		# Any time a tool is called, return to the chatbot
-		self.graph_builder.add_edge("tools", "chatbot")
+        # Define the edges and control flow
+        self.workflow.add_edge(START, "agent")
+        self.workflow.add_conditional_edges(
+            "agent", self.should_continue, ["check_auth", END]
+        )
+        self.workflow.add_edge("check_auth", "authorize")
+        self.workflow.add_edge("authorize", "tools")
+        self.workflow.add_edge("tools", "agent")
 
-		# Compile the graph
-		self.graph = self.graph_builder.compile()
-
-	def get_graph(self):
-		return self.graph
-
+        # Compile the graph
+        self.graph = self.workflow.compile()

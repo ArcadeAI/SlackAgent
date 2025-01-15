@@ -1,10 +1,9 @@
 import logging
-from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from archer.constants import FILE_STORAGE_BASE_DIR, STORAGE_TYPE
+from archer.env import FILE_STORAGE_BASE_DIR, STORAGE_TYPE
 from archer.storage.file import FileStore
-from archer.storage.schema import StorageResourceError, UserIdentity
+from archer.storage.schema import UserIdentity
 
 if TYPE_CHECKING:
     from archer.storage.schema import StateStore
@@ -18,15 +17,13 @@ def get_store() -> "StateStore":
     else:
         raise ValueError(f"Invalid storage type: {STORAGE_TYPE}")
 
-def set_user_state(
-    user_id: str,
-    provider: str,
-    model: str
-) -> UserIdentity:
+
+def set_user_state(user_id: str, provider: str, model: str) -> UserIdentity:
     user = UserIdentity(user_id=user_id, provider=provider, model=model)
     store = get_store()
     store.set_state(user)
     return user
+
 
 def get_user_state(user_id: str) -> UserIdentity:
     store = get_store()
@@ -35,11 +32,8 @@ def get_user_state(user_id: str) -> UserIdentity:
     else:
         return set_user_state(user_id, "openai", "gpt-4o")
 
-def update_user_state(
-    user_id: str,
-    provider: str = None,
-    model: str = None
-) -> None:
+
+def update_user_state(user_id: str, provider: str = None, model: str = None) -> None:
     user_state = get_user_state(user_id)
     if provider:
         user_state["provider"] = provider
