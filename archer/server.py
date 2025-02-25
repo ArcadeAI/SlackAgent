@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import threading
 from collections import deque
@@ -14,7 +15,8 @@ from slack_bolt.response import BoltResponse
 from archer.env import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
 from archer.listeners import register_listeners
 
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+logging.basicConfig(level=LOG_LEVEL, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
 # Thread-safe deque to store processed event IDs

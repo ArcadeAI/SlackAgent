@@ -32,7 +32,7 @@ class LangGraphAgent(BaseAgent):
             ]
         )
         self.manager = ArcadeToolManager()
-        self.tools = self.manager.get_tools(langgraph=True)
+        self.tools = self.manager.get_tools()
         self.tool_node = ToolNode(self.tools)
         self.llm_with_tools = self.llm.bind_tools(self.tools)
         self.prompted_model = self.prompt | self.llm_with_tools
@@ -76,10 +76,12 @@ class LangGraphAgent(BaseAgent):
 
     def check_auth(self, state: AgentState, config: dict):
         user_id = config["configurable"].get("user_id")
+
+        # TODO multiple tool calls to check here.
         tool_name = state["messages"][-1].tool_calls[0]["name"]
         auth_response = self.manager.authorize(tool_name, user_id)
         if auth_response.status != "completed":
-            return {"auth_url": auth_response.authorization_url}
+            return {"auth_url": auth_response.url}
         else:
             return {"auth_url": None}
 

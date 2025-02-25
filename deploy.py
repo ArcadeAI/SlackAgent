@@ -1,7 +1,10 @@
 import os
 
 import modal
+from dotenv import load_dotenv
 from modal import asgi_app
+
+load_dotenv()
 
 # Define your Modal stub
 app = modal.App("Archer")
@@ -10,8 +13,8 @@ vol = modal.Volume.from_name("archer", create_if_missing=True)
 image = (
     modal.Image.debian_slim()
     .copy_local_dir("./dist", "/root/dist")
-    .pip_install("/root/dist/archer_slackbot-0.1.0-py3-none-any.whl")
-    .pip_install("langgraph", "langchain-arcade", "langchain-openai", "langchain")
+    .pip_install("/root/dist/archer_slackbot-0.2.0-py3-none-any.whl")
+    .pip_install("langchain-arcade", "langchain-openai", "langchain")
 )
 
 with image.imports():
