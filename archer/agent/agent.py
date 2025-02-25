@@ -8,6 +8,7 @@ from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
 
 from archer.agent.base import BaseAgent
+from archer.defaults import TOOLKITS
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +31,29 @@ class LangGraphAgent(BaseAgent):
             ("placeholder", "{messages}"),
         ])
         self.manager = ArcadeToolManager()
-        self.tools = self.manager.get_tools()
+        self.tools = self.manager.get_tools(toolkits=TOOLKITS)
         self.tool_node = ToolNode(self.tools)
         self.llm_with_tools = self.llm.bind_tools(self.tools)
         self.prompted_model = self.prompt | self.llm_with_tools
         self.setup_graph()
+
+    def get_tool_descriptions(self) -> dict[str, str]:
+        """
+        Extract tool names and descriptions from the available tools.
+
+        Returns:
+            A dictionary mapping tool names to their descriptions.
+        """
+        tool_descriptions = {}
+        for tool in self.tools:
+            # Extract the name and description from each tool
+            name = getattr(tool, "name", None)
+            description = getattr(tool, "description", None)
+
+            if name and description:
+                tool_descriptions[name] = description
+
+        return tool_descriptions
 
     def invoke(self, state: dict, config: dict) -> dict:
         """

@@ -3,7 +3,7 @@ import logging
 from archer.agent.agent import LangGraphAgent
 from archer.agent.base import BaseAgent
 from archer.agent.utils import markdown_to_slack, redact_string, slack_to_markdown
-from archer.defaults import DEFAULT_SYSTEM_CONTENT, MODELS
+from archer.defaults import DEFAULT_SYSTEM_CONTENT, MODELS, get_dm_system_content
 from archer.storage.functions import get_user_state
 
 logger = logging.getLogger(__name__)
@@ -23,6 +23,7 @@ def invoke_agent(
     prompt: str,
     context: list[dict[str, str]] | None = None,
     system_content=DEFAULT_SYSTEM_CONTENT,
+    is_dm=False,
 ):
     if context:
         messages = [
@@ -42,6 +43,14 @@ def invoke_agent(
 
         state = {"messages": messages}
         agent = get_agent(user_settings["model"])
+
+        # If this is a DM and we need to include tool descriptions
+        if is_dm and system_content == DEFAULT_SYSTEM_CONTENT:
+            # Get tool descriptions from the agent
+            tool_descriptions = agent.get_tool_descriptions()
+            # Update the system content with tool descriptions
+            messages[0]["content"] = get_dm_system_content(tool_descriptions)
+
         response_state = agent.invoke(
             state,
             config={

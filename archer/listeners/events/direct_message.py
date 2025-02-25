@@ -5,7 +5,7 @@ from slack_sdk import WebClient
 
 from archer.agent import invoke_agent
 from archer.agent.utils import markdown_to_slack
-from archer.defaults import DEFAULT_LOADING_TEXT, DM_SYSTEM_CONTENT
+from archer.defaults import DEFAULT_LOADING_TEXT
 from archer.listeners.utils import parse_conversation
 
 
@@ -39,7 +39,10 @@ def direct_message_callback(client: WebClient, event: dict, logger: Logger, say:
                 conversation_context = []  # no context for direct messages out of a thread
 
             waiting_message = say(text=DEFAULT_LOADING_TEXT, thread_ts=thread_ts)
-            response = invoke_agent(user_id, text, conversation_context, DM_SYSTEM_CONTENT)
+
+            # Pass is_dm=True to indicate this is a direct message
+            response = invoke_agent(user_id, text, conversation_context, is_dm=True)
+
             replied = True
             client.chat_update(
                 channel=channel_id,
