@@ -1,10 +1,12 @@
 import os
+import tempfile
 
 # High level constants
 
 BOT_NAME = "Archer"
 STORAGE_TYPE = os.environ.get("STORAGE_TYPE", "file")
-FILE_STORAGE_BASE_DIR = os.environ.get("FILE_STORAGE_BASE_DIR", "/tmp/")
+SECURE_TMP_DIR = tempfile.mkdtemp(prefix="archer_")
+FILE_STORAGE_BASE_DIR = os.environ.get("FILE_STORAGE_BASE_DIR", SECURE_TMP_DIR)
 
 REDACTION_ENABLED = bool(os.environ.get("REDACTION_ENABLED", False))
 
@@ -27,8 +29,6 @@ REDACT_PHONE_PATTERN = os.environ.get(
 REDACT_CREDIT_CARD_PATTERN = os.environ.get(
     "REDACT_CREDIT_CARD_PATTERN", r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b"
 )
-REDACT_SSN_PATTERN = os.environ.get(
-    "REDACT_SSN_PATTERN", r"\b\d{3}[- ]?\d{2}[- ]?\d{4}\b"
-)
+REDACT_SSN_PATTERN = os.environ.get("REDACT_SSN_PATTERN", r"\b\d{3}[- ]?\d{2}[- ]?\d{4}\b")
 # For REDACT_USER_DEFINED_PATTERN, the default will never match anything
 REDACT_USER_DEFINED_PATTERN = os.environ.get("REDACT_USER_DEFINED_PATTERN", r"(?!)")

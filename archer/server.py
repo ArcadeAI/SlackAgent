@@ -1,12 +1,11 @@
 import logging
+import os
 import sys
 import threading
 from collections import deque
+from collections.abc import Callable
 
 from fastapi import FastAPI, Request
-
-# from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
-# from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi import SlackRequestHandler
 from slack_bolt.app import App
 from slack_bolt.response import BoltResponse
@@ -14,15 +13,16 @@ from slack_bolt.response import BoltResponse
 from archer.env import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
 from archer.listeners import register_listeners
 
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+logging.basicConfig(level=LOG_LEVEL, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
 # Thread-safe deque to store processed event IDs
-processed_events = deque(maxlen=1000)
-event_lock = threading.Lock()
+processed_events: deque[str] = deque(maxlen=1000)
+event_lock: threading.Lock = threading.Lock()
 
 
-def create_slack_app():
+def create_slack_app() -> App:
     slack_app = App(
         name="Archer",
         logger=logger,
@@ -31,16 +31,18 @@ def create_slack_app():
     )
 
     @slack_app.middleware
-    def deduplicate_events(req, resp, next):
+    def deduplicate_events(
+        req: Request,
+        resp: BoltResponse,
+        next: Callable[[], BoltResponse],  # noqa: A002
+    ) -> BoltResponse:
         event_id = req.body.get("event_id")
         event_type = req.body.get("event", {}).get("type")
 
         if event_type in ["message", "app_mention"] and event_id:
             with event_lock:
                 if event_id in processed_events:
-                    logger.info(
-                        f"Duplicate event detected: {event_id}, skipping processing."
-                    )
+                    logger.info(f"Duplicate event detected: {event_id}, skipping processing.")
                     return BoltResponse(status=200)
                 else:
                     processed_events.append(event_id)
@@ -51,7 +53,7 @@ def create_slack_app():
     return slack_app
 
 
-def create_fastapi_app():
+def create_fastapi_app() -> FastAPI:
     slack_app = create_slack_app()
     fastapi_handler = SlackRequestHandler(slack_app)
     fastapi_app = FastAPI()

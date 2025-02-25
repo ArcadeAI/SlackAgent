@@ -29,13 +29,12 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
     try:
         # Find the first option that matches the initial_model
         initial_option = next(
-            (option for option in options if option["value"].startswith(initial_model)),
-            None
+            (option for option in options if option["value"].startswith(initial_model)), None
         )
         if initial_option is None:
             initial_option = options[-1]
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.exception("Error finding initial option")
         initial_option = options[-1]
 
     try:
@@ -82,5 +81,5 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
                 ],
             },
         )
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.exception("Error publishing home view")

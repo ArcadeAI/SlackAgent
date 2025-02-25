@@ -7,23 +7,24 @@ if TYPE_CHECKING:
 class StorageError(Exception):
     pass
 
+
 class StorageResourceError(StorageError):
     pass
+
 
 class StorageConnectionError(StorageError):
     pass
 
 
 class StateStore:
+    def set_state(self, user_identity: "UserIdentity") -> None:
+        pass
 
-	def set_state(self, user_identity: "UserIdentity") -> None:
-		pass
+    def get_state(self, user_id: str) -> "UserIdentity":
+        pass
 
-	def get_state(self, user_id: str) -> "UserIdentity":
-		pass
-
-	def update_state(self, user_identity: "UserIdentity") -> None:
-		pass
+    def update_state(self, user_identity: "UserIdentity") -> None:
+        pass
 
 
 class UserIdentity(TypedDict):

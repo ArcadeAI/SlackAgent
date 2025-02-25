@@ -1,11 +1,9 @@
 import logging
-from functools import lru_cache
-from typing import Optional
 
 from archer.agent.agent import LangGraphAgent
 from archer.agent.base import BaseAgent
 from archer.agent.utils import markdown_to_slack, redact_string, slack_to_markdown
-from archer.defaults import DEFAULT_SYSTEM_CONTENT, MODELS
+from archer.defaults import DEFAULT_SYSTEM_CONTENT, MODELS, get_dm_system_content
 from archer.storage.functions import get_user_state
 
 logger = logging.getLogger(__name__)
@@ -23,8 +21,9 @@ def get_agent(model: str = "gpt-4o") -> BaseAgent:
 def invoke_agent(
     user_id: str,
     prompt: str,
-    context: Optional[list[dict[str, str]]] = None,
+    context: list[dict[str, str]] | None = None,
     system_content=DEFAULT_SYSTEM_CONTENT,
+    is_dm=False,
 ):
     if context:
         messages = [
@@ -44,6 +43,14 @@ def invoke_agent(
 
         state = {"messages": messages}
         agent = get_agent(user_settings["model"])
+
+        # If this is a DM and we need to include tool descriptions
+        if is_dm and system_content == DEFAULT_SYSTEM_CONTENT:
+            # Get tool descriptions from the agent
+            tool_descriptions = agent.get_tool_descriptions()
+            # Update the system content with tool descriptions
+            messages[0]["content"] = get_dm_system_content(tool_descriptions)
+
         response_state = agent.invoke(
             state,
             config={
@@ -53,21 +60,18 @@ def invoke_agent(
         print(response_state)
 
         # Check for 'auth_url' in response_state
-        if "auth_url" in response_state and response_state["auth_url"]:
+        if response_state.get("auth_url"):
             auth_url = response_state["auth_url"]
             logger.debug(f"Auth URL found: {auth_url}")
             return auth_url
 
         # Check for 'interrupt_message' in response_state
-        if (
-            "interrupt_message" in response_state
-            and response_state["interrupt_message"]
-        ):
+        if response_state.get("interrupt_message"):
             resp = response_state["interrupt_message"]
             return resp
 
         # Ensure 'messages' is in response_state and has content
-        if "messages" in response_state and response_state["messages"]:
+        if response_state.get("messages"):
             response_message = response_state["messages"][-1]
             if response_message.content:
                 resp_content = response_message.content
@@ -80,6 +84,6 @@ def invoke_agent(
             logger.error("No messages found in response state.")
             return "An error occurred: no response messages available."
 
-    except Exception as e:
-        logger.exception(f"Error generating response: {e}")
+    except Exception:
+        logger.exception("Error generating response")
         return "An unexpected error occurred while processing your request."
