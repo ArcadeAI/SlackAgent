@@ -1,5 +1,4 @@
 import logging
-from typing import List, Optional
 
 from slack_sdk.web.slack_response import SlackResponse
 
@@ -10,9 +9,7 @@ TODO: Account for more edge cases in channels and multi-text or multi-user messa
 """
 
 
-def parse_conversation(
-    conversation: SlackResponse, user_id: str
-) -> Optional[List[dict]]:
+def parse_conversation(conversation: SlackResponse, user_id: str) -> list[dict] | None:
     parsed = []
     try:
         for message in conversation:
@@ -20,7 +17,8 @@ def parse_conversation(
             role = "user" if msg_user_id == user_id else "assistant"
             text = message["text"]
             parsed.append({"role": role, "content": text})
+    except Exception:
+        logger.exception("Error parsing conversation")
+        return None
+    else:
         return parsed
-    except Exception as e:
-        logger.error(e)
-    return None

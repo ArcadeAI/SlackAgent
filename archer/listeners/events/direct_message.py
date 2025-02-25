@@ -39,20 +39,18 @@ def direct_message_callback(client: WebClient, event: dict, logger: Logger, say:
                 conversation_context = []  # no context for direct messages out of a thread
 
             waiting_message = say(text=DEFAULT_LOADING_TEXT, thread_ts=thread_ts)
-            response = invoke_agent(
-                user_id, text, conversation_context, DM_SYSTEM_CONTENT
-            )
+            response = invoke_agent(user_id, text, conversation_context, DM_SYSTEM_CONTENT)
             replied = True
             client.chat_update(
                 channel=channel_id,
                 ts=waiting_message["ts"],
                 text=markdown_to_slack(response),
             )
-        except Exception as e:
-            logger.error(f"Error in direct_message_callback: {e}")
+        except Exception:
+            logger.exception("Error in direct_message_callback")
             if not replied and waiting_message:
                 client.chat_update(
                     channel=channel_id,
                     ts=waiting_message["ts"],
-                    text=f"Received an error:\n{e}",
+                    text="Received an error. Please try again.",
                 )

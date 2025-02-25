@@ -23,15 +23,13 @@ with image.imports():
     fastapi_app = create_fastapi_app()
 
 # Define secrets to pass environment variables
-secrets = modal.Secret.from_dict(
-    {
-        "SLACK_BOT_TOKEN": os.environ["SLACK_BOT_TOKEN"],
-        "SLACK_SIGNING_SECRET": os.environ["SLACK_SIGNING_SECRET"],
-        "OPENAI_API_KEY": os.environ["OPENAI_API_KEY"],
-        "ARCADE_API_KEY": os.environ["ARCADE_API_KEY"],
-        "FILE_STORAGE_BASE_DIR": "/data",
-    }
-)
+secrets = modal.Secret.from_dict({
+    "SLACK_BOT_TOKEN": os.environ["SLACK_BOT_TOKEN"],
+    "SLACK_SIGNING_SECRET": os.environ["SLACK_SIGNING_SECRET"],
+    "OPENAI_API_KEY": os.environ["OPENAI_API_KEY"],
+    "ARCADE_API_KEY": os.environ["ARCADE_API_KEY"],
+    "FILE_STORAGE_BASE_DIR": "/data",
+})
 
 
 @app.function(image=image, secrets=[secrets], volumes={"/data": vol})

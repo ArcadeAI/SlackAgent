@@ -1,0 +1,12 @@
+{
+    "python.analysis.typeCheckingMode": "basic",
+    "editor.indentSize": 4,
+    "editor.tabSize": 4,
+    "[python]": {
+        "editor.insertSpaces": false,
+        "editor.tabSize": 4,
+    }
+
+  "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "all"
+}

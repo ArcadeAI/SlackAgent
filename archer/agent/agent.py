@@ -22,15 +22,13 @@ class LangGraphAgent(BaseAgent):
     """
 
     def __init__(
-        self, model: str = "gpt-4", tools: list[str] = None
+        self, model: str = "gpt-4", tools: list[str] | None = None
     ):  # TODO: add other providers
         super().__init__(model=model)
         self.llm = ChatOpenAI(model=model)
-        self.prompt = ChatPromptTemplate.from_messages(
-            [
-                ("placeholder", "{messages}"),
-            ]
-        )
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("placeholder", "{messages}"),
+        ])
         self.manager = ArcadeToolManager()
         self.tools = self.manager.get_tools()
         self.tool_node = ToolNode(self.tools)
@@ -44,15 +42,16 @@ class LangGraphAgent(BaseAgent):
         """
         try:
             result = self.graph.invoke(state, config=config)
-            return result
         except NodeInterrupt as e:
             logger.info(f"Authorization required: {e}")
             # Add the interrupt message to the state
             state["interrupt_message"] = str(e)
             return state
-        except Exception as e:
+        except Exception:
             logger.exception("Error during agent invocation")
-            raise e
+            raise
+        else:
+            return result
 
     def call_agent(self, state: AgentState, config: dict) -> dict:
         """
@@ -90,7 +89,10 @@ class LangGraphAgent(BaseAgent):
         Handle tool authorization by raising a NodeInterrupt with the auth message.
         """
         if state.get("auth_url"):
-            auth_message = f"Please authorize access to the tool by visiting this URL:\n\n{state['auth_url']}"
+            auth_url = state["auth_url"]
+            auth_message = (
+                f"Please authorize access to the tool by visiting this URL:\n\n{auth_url}"
+            )
             # Raise NodeInterrupt with the auth message
             raise NodeInterrupt(auth_message)
         return state
@@ -109,9 +111,7 @@ class LangGraphAgent(BaseAgent):
 
         # Define the edges and control flow
         self.workflow.add_edge(START, "agent")
-        self.workflow.add_conditional_edges(
-            "agent", self.should_continue, ["check_auth", END]
-        )
+        self.workflow.add_conditional_edges("agent", self.should_continue, ["check_auth", END])
         self.workflow.add_edge("check_auth", "authorize")
         self.workflow.add_edge("authorize", "tools")
         self.workflow.add_edge("tools", "agent")

@@ -15,7 +15,9 @@ def get_store() -> "StateStore":
     if STORAGE_TYPE == "file":
         return FileStore(base_dir=FILE_STORAGE_BASE_DIR, logger=logger)
     else:
-        raise ValueError(f"Invalid storage type: {STORAGE_TYPE}")
+        msg = f"Invalid storage type: {STORAGE_TYPE}"
+        logger.error(msg)
+        raise ValueError(msg)
 
 
 def set_user_state(user_id: str, provider: str, model: str) -> UserIdentity:
@@ -33,7 +35,7 @@ def get_user_state(user_id: str) -> UserIdentity:
         return set_user_state(user_id, "openai", "gpt-4o")
 
 
-def update_user_state(user_id: str, provider: str = None, model: str = None) -> None:
+def update_user_state(user_id: str, provider: str | None = None, model: str | None = None) -> None:
     user_state = get_user_state(user_id)
     if provider:
         user_state["provider"] = provider
