@@ -9,6 +9,7 @@ SECURE_TMP_DIR = tempfile.mkdtemp(prefix="archer_")
 FILE_STORAGE_BASE_DIR = os.environ.get("FILE_STORAGE_BASE_DIR", SECURE_TMP_DIR)
 
 REDACTION_ENABLED = bool(os.environ.get("REDACTION_ENABLED", False))
+SHORTEN_TOOL_DESCRIPTIONS = bool(os.environ.get("SHORTEN_TOOL_DESCRIPTIONS", True))
 
 ARCADE_API_KEY = os.environ.get("ARCADE_API_KEY", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")

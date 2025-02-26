@@ -2,7 +2,7 @@ import logging
 
 from archer.agent.agent import LangGraphAgent
 from archer.agent.base import BaseAgent
-from archer.agent.utils import markdown_to_slack, redact_string, slack_to_markdown
+from archer.agent.utils import markdown_to_slack, slack_to_markdown
 from archer.defaults import DEFAULT_SYSTEM_CONTENT, MODELS, get_dm_system_content
 from archer.storage.functions import get_user_state
 
@@ -75,7 +75,7 @@ def invoke_agent(
             response_message = response_state["messages"][-1]
             if response_message.content:
                 resp_content = response_message.content
-                resp = markdown_to_slack(redact_string(resp_content))
+                resp = markdown_to_slack(resp_content)
                 return resp
             else:
                 logger.error("Response message content is empty.")

@@ -16,8 +16,8 @@ build-backend = "poetry.core.masonry.api"
 python = ">=3.10,<3.13"
 slack-bolt = "~1.20.1"
 python-dotenv = "^1.0.1"
-langchain-openai = "~0.2.3"
-langchain-arcade = "1.0.*"
+langchain-openai = "~0.3.7"
+langchain-arcade = "1.1.*"
 fastapi = "^0.110.3"
 
 

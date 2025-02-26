@@ -23,7 +23,7 @@ class LangGraphAgent(BaseAgent):
     """
 
     def __init__(
-        self, model: str = "gpt-4", tools: list[str] | None = None
+        self, model: str = "gpt-4o", tools: list[str] | None = None
     ):  # TODO: add other providers
         super().__init__(model=model)
         self.llm = ChatOpenAI(model=model)
