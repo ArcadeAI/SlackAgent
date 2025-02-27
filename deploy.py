@@ -28,15 +28,11 @@ secrets = modal.Secret.from_dict({
     "LANGSMITH_ENDPOINT": os.environ["LANGSMITH_ENDPOINT"],
     "LANGSMITH_API_KEY": os.environ["LANGSMITH_API_KEY"],
     "LANGSMITH_PROJECT": os.environ["LANGSMITH_PROJECT"],
+    "LOG_LEVEL": os.environ["LOG_LEVEL"],
 })
 
 
-@app.function(
-    image=image,
-    secrets=[secrets],
-    volumes={"/data": vol},
-    allow_concurrent_inputs=1000,  # Allow maximum concurrent requests
-)
+@app.function(image=image, secrets=[secrets], volumes={"/data": vol})
 @asgi_app()
 def web_app():
     # Import here to ensure it happens inside the container

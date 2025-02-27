@@ -1,5 +1,7 @@
 import logging
 
+from langgraph.errors import NodeInterrupt
+
 from archer.agent.agent import LangGraphAgent
 from archer.agent.base import BaseAgent
 from archer.agent.utils import markdown_to_slack, slack_to_markdown
@@ -51,23 +53,22 @@ def invoke_agent(
             # Update the system content with tool descriptions
             messages[0]["content"] = get_dm_system_content(tool_descriptions)
 
-        response_state = agent.invoke(
-            state,
-            config={
-                "user_id": user_id,
-            },
-        )
-        print(response_state)
+        try:
+            response_state = agent.invoke(
+                state,
+                config={
+                    "user_id": user_id,
+                },
+            )
+        except NodeInterrupt as e:
+            logger.info(f"Interrupt message: {e}")
+            return e.value
 
-        # Check for 'auth_url' in response_state
-        if response_state.get("auth_url"):
-            auth_url = response_state["auth_url"]
-            logger.debug(f"Auth URL found: {auth_url}")
-            return auth_url
+        logger.info(f"Response state: {response_state}")
 
-        # Check for 'interrupt_message' in response_state
-        if response_state.get("interrupt_message"):
-            resp = response_state["interrupt_message"]
+        # Check for auth_urls authorization
+        if response_state.get("auth_urls"):
+            resp = response_state["auth_urls"]
             return resp
 
         # Ensure 'messages' is in response_state and has content

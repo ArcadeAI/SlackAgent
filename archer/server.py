@@ -13,7 +13,7 @@ from slack_bolt.response import BoltResponse
 from archer.env import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
 from archer.listeners import register_listeners
 
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 logging.basicConfig(level=LOG_LEVEL, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
@@ -61,6 +61,13 @@ def create_fastapi_app() -> FastAPI:
     # Define an endpoint to receive Slack requests
     @fastapi_app.post("/slack/events")
     async def endpoint(req: Request):
+        # Log as much detail as possible.
+        logger.info(
+            f"\nReceived {req.method} request\n"
+            f"URL path: {req.url.path}\n"
+            f"Query string: {req.url.query}\n"
+            f"Headers: {dict(req.headers)}\n"
+        )
         return await fastapi_handler.handle(req)
 
     return fastapi_app

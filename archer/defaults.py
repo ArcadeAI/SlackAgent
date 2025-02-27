@@ -1,5 +1,5 @@
 from archer.env import SHORTEN_TOOL_DESCRIPTIONS
-from archer.utils import get_formatted_times
+from archer.utils import get_formatted_times, get_tool_section
 
 MENTION_WITHOUT_TEXT = """
 Hi there! You didn't provide a message with your mention.
@@ -38,25 +38,14 @@ def get_dm_system_content(
 
     Args:
         tool_descriptions: A dictionary mapping tool names to their descriptions.
-                          If None, a generic tools section will be included.
+                           If None, a generic tools section will be included.
         user_timezone: The timezone of the user.
-        shorten_descriptions: Whether to shorten the tool descriptions to 100 characters.
+        shorten_descriptions: Whether to shorten the tool descriptions to the first line.
 
-    This ensures the date is always current when the content is used and
-    provides up-to-date tool information.
+    Returns:
+        A fully formatted system content string containing current times and tool information.
     """
-    tools_section = ""
-
-    if tool_descriptions and len(tool_descriptions) > 0:
-        tools_section = "Available tools:\n"
-        for tool_name, description in tool_descriptions.items():
-            # Shorten description if requested
-            if shorten_descriptions and len(description) > 100:
-                short_desc = description[:97] + "..."
-                tools_section += f"- {tool_name}: {short_desc}"
-            else:
-                # Format description with proper spacing for LLM readability
-                tools_section += f"- {tool_name}: {description}\n"
+    tools_section = get_tool_section(tool_descriptions, shorten_descriptions)
 
     # Get formatted times for all major time zones
     current_times = get_formatted_times(user_timezone)

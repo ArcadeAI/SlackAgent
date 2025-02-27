@@ -57,3 +57,37 @@ def get_formatted_times(user_timezone: str | None = None) -> str:
     #    time_strings.append(f"User timezone: {user_timezone}")
 
     return "\n".join(time_strings)
+
+
+def get_tool_section(
+    tool_descriptions: dict[str, str] | None,
+    shorten_descriptions: bool = True,
+) -> str:
+    """
+    Generates and returns a formatted tools section string from the provided tool descriptions.
+
+    If shorten_descriptions is True, only the content up to the first newline of each
+    tool's description is used.
+
+    Args:
+        tool_descriptions: A dictionary mapping tool names to their descriptions.
+        shorten_descriptions: Whether to keep only the first line of each description.
+
+    Returns:
+        A formatted string listing each tool and its (optionally shortened) description.
+    """
+    if not tool_descriptions or len(tool_descriptions) == 0:
+        return ""
+
+    tools_section = "Available tools:\n"
+
+    for tool_name, description in tool_descriptions.items():
+        if shorten_descriptions:
+            # Use only the first line of the description
+            # (even if there are none this returns the full string)
+            first_line = description.split("\n")[0]
+            tools_section += f"- {tool_name}: {first_line}\n"
+        else:
+            tools_section += f"- {tool_name}: {description}\n"
+
+    return tools_section
