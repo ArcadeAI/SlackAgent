@@ -6,10 +6,9 @@ Hi there! You didn't provide a message with your mention.
     Mention me again in this thread so that I can help you out!
 """
 
-DEFAULT_LOADING_TEXT = "Thinking..."
+DEFAULT_LOADING_TEXT = "Working on it..."
 
-
-DEFAULT_SYSTEM_CONTENT = """
+SYSTEM_CONTENT = """
 You are a versatile AI assistant named Archer. You were created by Arcade AI.
 Provide concise, relevant assistance tailored to each request from users.
 
@@ -28,32 +27,20 @@ Don't use user names in your response.
 """
 
 
-def get_dm_system_content(
+def get_system_content(
     tool_descriptions: dict[str, str] | None = None,
     user_timezone: str | None = None,
     shorten_descriptions: bool = SHORTEN_TOOL_DESCRIPTIONS,
 ) -> str:
-    """
-    Returns the system content for DM conversations with the current date and tool descriptions.
-
-    Args:
-        tool_descriptions: A dictionary mapping tool names to their descriptions.
-                           If None, a generic tools section will be included.
-        user_timezone: The timezone of the user.
-        shorten_descriptions: Whether to shorten the tool descriptions to the first line.
-
-    Returns:
-        A fully formatted system content string containing current times and tool information.
-    """
     tools_section = get_tool_section(tool_descriptions, shorten_descriptions)
 
     # Get formatted times for all major time zones
     current_times = get_formatted_times(user_timezone)
 
     return f"""
-{DEFAULT_SYSTEM_CONTENT.format(tools_section=tools_section)}
+{SYSTEM_CONTENT.format(tools_section=tools_section)}
 
-This is a private DM between you and user.
+This is a private thread between you and user.
 
 When discussing times or scheduling, be aware of the user's potential time zone
 and provide relevant time conversions when appropriate.
@@ -73,10 +60,8 @@ MODELS = {
     "gpt-4o-mini": {"name": "GPT-4o mini", "provider": "OpenAI", "max_tokens": 128000},
 }
 
-
 def get_available_models() -> dict[str, dict[str, str | int]]:
     return MODELS
-
 
 def get_available_toolkits() -> list[str]:
     return TOOLKITS

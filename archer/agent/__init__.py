@@ -5,7 +5,7 @@ from langgraph.errors import NodeInterrupt
 from archer.agent.agent import LangGraphAgent
 from archer.agent.base import BaseAgent
 from archer.agent.utils import markdown_to_slack, slack_to_markdown
-from archer.defaults import DEFAULT_SYSTEM_CONTENT, MODELS, get_dm_system_content
+from archer.defaults import MODELS, SYSTEM_CONTENT
 from archer.storage.functions import get_user_state
 
 logger = logging.getLogger(__name__)
@@ -24,34 +24,33 @@ def invoke_agent(
     user_id: str,
     prompt: str,
     context: list[dict[str, str]] | None = None,
-    system_content=DEFAULT_SYSTEM_CONTENT,
-    is_dm=False,
+    system_content=SYSTEM_CONTENT,
 ):
-    if context:
-        messages = [
-            {"role": "system", "content": system_content},
-            *context,
-            {"role": "user", "content": slack_to_markdown(prompt)},
-        ]
-    else:
-        messages = [
-            {"role": "system", "content": system_content},
-            {"role": "user", "content": slack_to_markdown(prompt)},
-        ]
-
     try:
         user_settings = get_user_state(user_id)
         logger.debug(f"User settings: {user_settings}")
 
-        state = {"messages": messages}
+        # Initialize agent using user settings
         agent = get_agent(user_settings["model"])
 
-        # If this is a DM and we need to include tool descriptions
-        if is_dm and system_content == DEFAULT_SYSTEM_CONTENT:
-            # Get tool descriptions from the agent
-            tool_descriptions = agent.get_tool_descriptions()
-            # Update the system content with tool descriptions
-            messages[0]["content"] = get_dm_system_content(tool_descriptions)
+        # Use the enriched system prompt from the agent that includes tool descriptions and time info
+        enriched_system_content = agent.get_system_prompt(
+            user_timezone=user_settings.get("timezone")
+        )
+
+        if context:
+            messages = [
+                {"role": "system", "content": enriched_system_content},
+                *context,
+                {"role": "user", "content": slack_to_markdown(prompt)},
+            ]
+        else:
+            messages = [
+                {"role": "system", "content": enriched_system_content},
+                {"role": "user", "content": slack_to_markdown(prompt)},
+            ]
+
+        state = {"messages": messages}
 
         try:
             response_state = agent.invoke(
@@ -68,11 +67,12 @@ def invoke_agent(
 
         # Check for auth_urls authorization
         if response_state.get("auth_urls"):
-            resp = response_state["auth_urls"]
-            return resp
+            auth_message = response_state["auth_urls"].get(user_id, None)
+            if auth_message:
+                return auth_message
 
         # Ensure 'messages' is in response_state and has content
-        if response_state.get("messages"):
+        if response_state["messages"]:
             response_message = response_state["messages"][-1]
             if response_message.content:
                 resp_content = response_message.content

@@ -9,15 +9,13 @@ from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
 
 from archer.agent.base import BaseAgent
-from archer.defaults import TOOLKITS
+from archer.defaults import TOOLKITS, get_system_content
 
 logger = logging.getLogger(__name__)
 
-
 class AgentState(MessagesState):
     # Save the authorization URLs by tool name and URL.
-    auth_urls: list[tuple[str, str]] | None = None
-
+    auth_urls: dict[str, str] | None = None
 
 class LangGraphAgent(BaseAgent):
     """
@@ -27,14 +25,18 @@ class LangGraphAgent(BaseAgent):
 
     def __init__(self, model: str = "gpt-4o", tools: list[str] | None = None):
         super().__init__(model=model)
-        self.llm = ChatOpenAI(model=model)
         self.prompt = ChatPromptTemplate.from_messages([("placeholder", "{messages}")])
+        self.llm = ChatOpenAI(model=model)
         self.manager = ArcadeToolManager()
         self.tools = self.manager.get_tools(tools=tools, toolkits=TOOLKITS)
         self.tool_node = ToolNode(self.tools)
         self.llm_with_tools = self.llm.bind_tools(self.tools)
         self.prompted_model = self.prompt | self.llm_with_tools
+
         self.setup_graph()
+
+        # Cache tool descriptions to avoid repeated network calls
+        self.cached_tool_descriptions = self.get_tool_descriptions()
 
     def get_tool_descriptions(self) -> dict[str, str]:
         """
@@ -47,6 +49,14 @@ class LangGraphAgent(BaseAgent):
             if name and description:
                 tool_descriptions[name] = description
         return tool_descriptions
+
+    def get_system_prompt(self, user_timezone: str | None = None) -> str:
+        """
+        Return the enriched system prompt using cached tool descriptions.
+        """
+        return get_system_content(
+            tool_descriptions=self.cached_tool_descriptions, user_timezone=user_timezone
+        )
 
     def invoke(self, state: AgentState, config: RunnableConfig) -> AgentState:
         """
@@ -61,11 +71,11 @@ class LangGraphAgent(BaseAgent):
 
     def call_agent(self, state: AgentState, config: RunnableConfig) -> dict:
         """
-        Call the LLm with its tools. This method extracts the assistant's reply and
-        any tool calls without assuming their position.
+        Call the LLM with its tools using the full conversation context
+        provided in state["messages"].
         """
         messages = state["messages"]
-        # Generate response using the prompted model
+        # Generate response using the prompted model (which now uses full conversation history)
         response = self.prompted_model.invoke({"messages": messages})
 
         # Extract the assistant's reply and any tool calls
@@ -94,31 +104,31 @@ class LangGraphAgent(BaseAgent):
                 auth_response = self.manager.authorize(tool_name, user_id)
                 if auth_response.status != "completed":
                     auth_list.append((tool_name, auth_response.url))
-        return {"auth_urls": auth_list}
 
-    def authorize(self, state: AgentState, config: RunnableConfig) -> AgentState:
-        """
-        Raise a NodeInterrupt if authorization is pending.
-        """
-
-        if state["auth_urls"]:
-            # If multiple tools require auth, list them; otherwise, use the single message.
-            if len(state["auth_urls"]) == 1:
-                tool_auth = state["auth_urls"][0]
+            # If multiple tools require auth, list them;
+            # otherwise, use the single message.
+            if len(auth_list) == 1:
+                tool_auth = auth_list[0]
                 auth_message = (
                     f"Please authorize the *{tool_auth[0]}* tool by visiting:\n{tool_auth[1]}\n"
                     "Once authorized, resend the message."
                 )
             else:
                 auth_message = "Please authorize access for the following tools:\n"
-                for i, tool_auth in enumerate(state["auth_urls"], 1):
+                for i, tool_auth in enumerate(auth_list, 1):
                     auth_message += f"{i}. *{tool_auth[0]}*: {tool_auth[1]}\n"
                 auth_message += "After authorizing, please resend the message."
 
-            # clear the auth_urls from the state
-            state["auth_urls"] = None
+        return {"auth_urls": {user_id: auth_message}}
 
-            # TODO Raise the interrupt so the client can capture and then re-invoke with a correction ToolMessage if needed.
+    def authorize(self, state: AgentState, config: RunnableConfig) -> AgentState:
+        """
+        Raise a NodeInterrupt if authorization is pending.
+        """
+        user_id = config.get("configurable", {}).get("user_id")
+        auth_message = state["auth_urls"].get(user_id, None)
+        if auth_message:
+            del state["auth_urls"][user_id]
             raise NodeInterrupt(auth_message)
         return state
 
