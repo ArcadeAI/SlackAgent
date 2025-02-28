@@ -1,18 +1,16 @@
+import json
 import logging
 
 from slack_bolt import Assistant, BoltContext, Say, SetStatus, SetSuggestedPrompts
 from slack_sdk import WebClient
 
 from archer.agent import invoke_agent
+from archer.agent.utils import markdown_to_slack
 from archer.defaults import DEFAULT_LOADING_TEXT
+from archer.storage.functions import save_agent_state
 
 # Shared assistant instance
 assistant = Assistant()
-
-
-def register_assistant_listeners(app):
-    """Register assistant middleware on the Slack app."""
-    app.use(assistant.middleware)
 
 
 # This listener is invoked when a human user opens an assistant thread
@@ -65,8 +63,7 @@ def respond_in_assistant_thread(
         replies = client.conversations_replies(
             channel=context.channel_id,
             ts=context.thread_ts,
-            oldest=context.thread_ts,
-            limit=50,
+            limit=15,
         )
 
         conversation_history = []
@@ -75,9 +72,57 @@ def respond_in_assistant_thread(
             role = "assistant" if message.get("bot_id") else "user"
             conversation_history.append({"role": role, "content": message.get("text", "")})
 
-        # Pass the full conversation history as context to the agent
         response = invoke_agent(user_id, user_message, context=conversation_history)
-        say(response)
+
+        # Check if the AgentResponse has an auth_message
+        if hasattr(response, "auth_message") and response.auth_message is not None:
+            # Save the agent state and get a unique ID
+            state_id = save_agent_state(response.state) if hasattr(response, "state") else None
+
+            # First, send the auth message to the user with a button to open the modal
+            auth_message = response.auth_message
+
+            # Add instructions for the user
+            auth_message += "\n\nAfter authorizing, click the button below to continue:"
+
+            # Send message with a button that will provide a trigger_id when clicked
+            say({
+                "text": auth_message,
+                "blocks": [
+                    {"type": "section", "text": {"type": "mrkdwn", "text": auth_message}},
+                    {
+                        "type": "actions",
+                        "elements": [
+                            {
+                                "type": "button",
+                                "text": {
+                                    "type": "plain_text",
+                                    "text": "Authorization Complete",
+                                    "emoji": True,
+                                },
+                                "value": json.dumps({
+                                    "user_id": user_id,
+                                    "channel_id": context.channel_id,
+                                    "thread_ts": context.thread_ts,
+                                    "message": user_message,
+                                    "state_id": state_id,
+                                }),
+                                "action_id": "auth_complete_button",
+                            }
+                        ],
+                    },
+                ],
+            })
+
+            # Set status to waiting for authorization
+            set_status("Waiting for user authorization...")
+
+        else:
+            # If no auth_message, just send the response content
+            content = (
+                markdown_to_slack(response.content) if hasattr(response, "content") else response
+            )
+            say(content)
 
     except Exception as e:
         logger.exception("Failed to handle a user message event")

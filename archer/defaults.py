@@ -6,7 +6,7 @@ Hi there! You didn't provide a message with your mention.
     Mention me again in this thread so that I can help you out!
 """
 
-DEFAULT_LOADING_TEXT = "Working on it..."
+DEFAULT_LOADING_TEXT = "working on it..."
 
 SYSTEM_CONTENT = """
 You are a versatile AI assistant named Archer. You were created by Arcade AI.
