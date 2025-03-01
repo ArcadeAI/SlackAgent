@@ -97,66 +97,9 @@ def get_agent_state(state_id: str) -> dict:
 
     # Clear auth_urls to prevent re-triggering authorization
     if "auth_urls" in state:
-        # Set auth_urls to empty dict or with None values to indicate authorization is complete
+        # Set auth_urls values to None to indicate authorization is complete
         user_ids = list(state["auth_urls"].keys())
         state["auth_urls"] = {user_id: None for user_id in user_ids}
 
-    # Fix tool calls without responses
-    if "messages" in state and len(state["messages"]) > 0:
-        messages = state["messages"]
-
-        # Find the last assistant message with tool calls
-        for i in range(len(messages) - 1, -1, -1):
-            msg = messages[i]
-
-            # Check if this is an assistant message with tool calls
-            if hasattr(msg, "tool_calls") and msg.tool_calls:
-                # Get all tool call IDs from this message
-                tool_call_ids = [tc["id"] for tc in msg.tool_calls]
-
-                # Check if we have tool response messages for each tool call
-                missing_tool_responses = set(tool_call_ids)
-
-                # Look for tool response messages after this message
-                for j in range(i + 1, len(messages)):
-                    if (
-                        hasattr(messages[j], "tool_call_id")
-                        and messages[j].tool_call_id in missing_tool_responses
-                    ):
-                        missing_tool_responses.remove(messages[j].tool_call_id)
-
-                # If we have missing tool responses, add dummy tool response messages
-                if missing_tool_responses:
-                    logger.warning(
-                        f"Adding dummy tool responses for {len(missing_tool_responses)} missing tool calls"
-                    )
-
-                    # Find the index where we should insert the tool responses
-                    insert_idx = i + 1
-
-                    # Create dummy tool response messages for each missing tool call
-                    for tool_call_id in missing_tool_responses:
-                        # Find the corresponding tool call to get the tool name
-                        tool_call = next(
-                            (tc for tc in msg.tool_calls if tc["id"] == tool_call_id), None
-                        )
-                        if tool_call:
-                            tool_name = tool_call.get("name", "unknown_tool")
-
-                            # Create a dummy tool response message
-                            from langchain_core.messages import ToolMessage
-
-                            tool_response = ToolMessage(
-                                content="Authorization completed. Tool ready to use.",
-                                tool_call_id=tool_call_id,
-                                name=tool_name,
-                            )
-
-                            # Insert the tool response message
-                            messages.insert(insert_idx, tool_response)
-                            insert_idx += 1
-
-                # We only need to fix the most recent assistant message with tool calls
-                break
 
     return state

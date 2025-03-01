@@ -7,7 +7,7 @@ STORAGE_TYPE = os.environ.get("STORAGE_TYPE", "file")
 FILE_STORAGE_BASE_DIR = os.environ.get("FILE_STORAGE_BASE_DIR", "./data")
 
 REDACTION_ENABLED = bool(os.environ.get("REDACTION_ENABLED", False))
-SHORTEN_TOOL_DESCRIPTIONS = bool(os.environ.get("SHORTEN_TOOL_DESCRIPTIONS", True))
+SHORTEN_TOOL_DESCRIPTIONS = bool(os.environ.get("SHORTEN_TOOL_DESCRIPTIONS", False))
 
 ARCADE_API_KEY = os.environ.get("ARCADE_API_KEY", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")

@@ -71,12 +71,17 @@ def handle_auth_complete(
 
         # Send the response to the thread as the assistant
         content = response.content if hasattr(response, "content") else response
-        client.chat_postMessage(
-            channel=channel_id,
-            text=markdown_to_slack(content),
-            thread_ts=thread_ts,
-            as_user=True,  # This maintains the assistant's identity
-        )
+
+        # Check if content is empty (which happens when the agent only makes tool calls)
+        if content:
+            client.chat_postMessage(
+                channel=channel_id,
+                text=markdown_to_slack(content),
+                thread_ts=thread_ts,
+                as_user=True,  # This maintains the assistant's identity
+            )
+        else:
+            logger.info(f"Agent response was empty: {response}")
 
     except Exception as e:
         logger.exception("Error handling auth completion")

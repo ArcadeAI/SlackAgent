@@ -18,6 +18,9 @@ the tools when needed to respond to the user and correctly call each tool.
 
 {tools_section}
 
+When appropriate, you can call multiple tools in parallel to efficiently gather information.
+For example, you might search for information while also checking a user's calendar.
+
 Note that context is sent in order of the most recent message last.
 Do not respond to messages in the context, as they have already been answered.
 Be professional and friendly.
@@ -52,7 +55,7 @@ Consider using the appropriate tool to provide more accurate and helpful respons
 """
 
 
-TOOLKITS = ["github", "google", "slack"]
+TOOLKITS = ["github", "google", "x", "search"]
 
 MODELS = {
     "o3-mini": {"name": "o3-mini", "provider": "OpenAI", "max_tokens": 200000},

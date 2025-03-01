@@ -122,8 +122,15 @@ def respond_in_assistant_thread(
             content = (
                 markdown_to_slack(response.content) if hasattr(response, "content") else response
             )
+
+            # Check if content is empty (which happens when the agent only makes tool calls)
+            if not content or content.strip() == "":
+                # Provide a default message when content is empty
+                content = "I'm working on your request..."
+
+            # Now send the message with guaranteed non-empty content
             say(content)
 
-    except Exception as e:
+    except Exception:
         logger.exception("Failed to handle a user message event")
-        say(f":warning: Something went wrong! ({e})")
+        say(":warning: Something went wrong! Please try again.")
