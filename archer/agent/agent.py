@@ -240,8 +240,7 @@ class ReactAgent(BaseAgent):
             interrupt(value=auth_message)
         elif resume_input is not None:
             # Clear the auth interrupt once a resume input has been provided.
-            state.pop("auth_message", None)
-            state.pop("resume_input", None)
+            return {"auth_message": None, "resume_input": None}
         return state
 
     def setup_graph(self) -> None:

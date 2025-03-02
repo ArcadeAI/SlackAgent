@@ -86,7 +86,7 @@ def invoke_agent(
 
         state = state or {}
         if resume:
-            command = Command(update={"resume_input": "yes"}, resume="please!!!!")
+            command = Command(update={"resume_input": "yes"}, resume="please!!!!", goto="tools")
             response_state = agent.graph.invoke(
                 command, config={"configurable": {"user_id": user_id, "thread_id": thread_id}}
             )
