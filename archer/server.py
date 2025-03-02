@@ -39,7 +39,7 @@ def create_slack_app() -> App:
         event_id = req.body.get("event_id")
         event_type = req.body.get("event", {}).get("type")
 
-        if event_type in ["message", "app_mention"] and event_id:
+        if event_type in ["message", "app_mention", "assistant"] and event_id:
             with event_lock:
                 if event_id in processed_events:
                     logger.info(f"Duplicate event detected: {event_id}, skipping processing.")

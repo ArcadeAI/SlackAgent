@@ -55,7 +55,7 @@ Consider using the appropriate tool to provide more accurate and helpful respons
 """
 
 
-TOOLKITS = ["github", "google", "x", "search"]
+TOOLKITS = ["github", "google", "x", "search", "web"]
 
 MODELS = {
     "o3-mini": {"name": "o3-mini", "provider": "OpenAI", "max_tokens": 200000},

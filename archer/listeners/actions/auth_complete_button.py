@@ -23,7 +23,9 @@ def handle_auth_complete_button(
         channel_id = value["channel_id"]
         thread_ts = value["thread_ts"]
         user_message = value["message"]
-        state_id = value.get("state_id")
+        thread_id = value.get("thread_id")
+
+        logger.info(f"Auth complete button clicked: thread_id={thread_id} user_id={user_id}")
 
         # Now we have a valid trigger_id from the button click
         trigger_id = body["trigger_id"]
@@ -50,7 +52,7 @@ def handle_auth_complete_button(
                     "channel_id": channel_id,
                     "thread_ts": thread_ts,
                     "message": user_message,
-                    "state_id": state_id,
+                    "thread_id": thread_id,
                 }),
                 "blocks": [
                     {
