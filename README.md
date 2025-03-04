@@ -25,6 +25,11 @@ By default, Archer can interact with and use:
 However, any of the available Arcade toolkits or custom toolkits you develop can also be
 used by Archer.
 
+<div style="text-align: center;">
+  <img style="display: inline-block; width: 45%; margin: 0 10px;" alt="Screenshot 2025-03-04 at 3 23 46 AM" src="https://github.com/user-attachments/assets/22db9c33-36bf-414f-b04f-c70234552144" />
+  <img style="display: inline-block; width: 45%; margin: 0 10px;" alt="Screenshot 2025-03-04 at 3 25 23 AM" src="https://github.com/user-attachments/assets/f743d286-6bde-4995-b5a0-77e8d32f203d" />
+</div>
+
 
 ----
 
