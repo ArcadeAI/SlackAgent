@@ -77,6 +77,8 @@ def markdown_to_slack(content: str) -> str:
                 (r"\*\*(?!\s)([^\*\n]+?)(?<!\s)\*\*", r"*\1*"),  # **bold** to *bold*
                 (r"__(?!\s)([^_\n]+?)(?<!\s)__", r"*\1*"),  # __bold__ to *bold*
                 (r"~~(?!\s)([^~\n]+?)(?<!\s)~~", r"~\1~"),  # ~~strike~~ to ~strike~
+                # Add pattern for Markdown links
+                (r"\[([^\]]+)\]\(([^)]+)\)", r"<\2|\1>"),  # [text](url) to <url|text>
             ]:
                 part = re.sub(o, n, part)
             result += part

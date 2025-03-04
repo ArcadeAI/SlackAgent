@@ -1,56 +1,56 @@
 {
-  "_metadata": {
-    "major_version": 1,
-    "minor_version": 1
-  },
-  "display_information": {
-    "name": "Archer"
-  },
-  "features": {
-    "app_home": {
-      "home_tab_enabled": true,
-      "messages_tab_enabled": true,
-      "messages_tab_read_only_enabled": false
+    "display_information": {
+        "name": "Archer",
+        "description": "Archer, the AI Agent for Slack by Arcade",
+        "background_color": "#ed155d",
+        "long_description": "Archer is an AI agent that enhances productivity within Slack by performing actions on your behalf. It can manage communication and scheduling, interact with development platforms, perform web searches and data extraction, engage with social media, and streamline various workflow automation tasks. With integrations across multiple services, Archer simplifies complex processes, allowing users to accomplish more without switching between apps"
     },
-    "bot_user": {
-      "display_name": "Archer",
-      "always_online": true
+    "features": {
+        "app_home": {
+            "home_tab_enabled": true,
+            "messages_tab_enabled": true,
+            "messages_tab_read_only_enabled": false
+        },
+        "bot_user": {
+            "display_name": "Archer",
+            "always_online": true
+        },
+        "assistant_view": {
+            "assistant_description": "Archer is an AI assistant that can automate tasks, manage digital services, and retrieve information across various platforms effectively.",
+            "suggested_prompts": []
+        }
+    },
+    "oauth_config": {
+        "scopes": {
+            "bot": [
+                "chat:write",
+                "chat:write.public",
+                "im:history",
+                "im:read",
+                "im:write",
+                "users:read",
+                "assistant:write"
+            ]
+        }
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "<INSERT>.modal.run/slack/events",
+            "bot_events": [
+                "app_home_opened",
+                "assistant_thread_context_changed",
+                "assistant_thread_started",
+                "message.im"
+            ]
+        },
+        "interactivity": {
+            "is_enabled": true,
+            "request_url": "<INSERT>.modal.run/slack/events"
+        },
+        "org_deploy_enabled": true,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false,
+        "hermes_app_type": "remote",
+        "function_runtime": "remote"
     }
-  },
-  "oauth_config": {
-    "scopes": {
-      "bot": [
-        "app_mentions:read",
-        "channels:history",
-        "channels:read",
-        "chat:write",
-        "chat:write.public",
-        "commands",
-        "groups:history",
-        "groups:read",
-        "im:history",
-        "im:read",
-        "im:write",
-        "mpim:history",
-        "mpim:read",
-        "mpim:write",
-        "users:read"
-      ]
-    }
-  },
-  "settings": {
-    "event_subscriptions": {
-      "bot_events": [
-        "app_home_opened",
-        "app_mention",
-        "message.im"
-      ]
-    },
-    "interactivity": {
-      "is_enabled": true
-    },
-    "org_deploy_enabled": true,
-    "socket_mode_enabled": false,
-    "token_rotation_enabled": false
-  }
 }

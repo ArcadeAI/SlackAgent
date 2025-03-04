@@ -1,12 +1,10 @@
 import os
-import tempfile
 
 # High level constants
 
 BOT_NAME = "Archer"
 STORAGE_TYPE = os.environ.get("STORAGE_TYPE", "file")
-SECURE_TMP_DIR = tempfile.mkdtemp(prefix="archer_")
-FILE_STORAGE_BASE_DIR = os.environ.get("FILE_STORAGE_BASE_DIR", SECURE_TMP_DIR)
+FILE_STORAGE_BASE_DIR = os.environ.get("FILE_STORAGE_BASE_DIR", "./data")
 
 REDACTION_ENABLED = bool(os.environ.get("REDACTION_ENABLED", False))
 

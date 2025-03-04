@@ -1,89 +1,106 @@
 import logging
+import uuid
+from dataclasses import dataclass
 
-from archer.agent.agent import LangGraphAgent
+from langgraph.types import Command
+
+from archer.agent.agent import ReactAgent
 from archer.agent.base import BaseAgent
-from archer.agent.utils import markdown_to_slack, redact_string, slack_to_markdown
-from archer.defaults import DEFAULT_SYSTEM_CONTENT, MODELS, get_dm_system_content
+from archer.agent.utils import slack_to_markdown
+from archer.defaults import get_system_prompt
 from archer.storage.functions import get_user_state
 
 logger = logging.getLogger(__name__)
 
 
-def get_available_models() -> list[dict[str, str]]:  # TODO type this
-    return MODELS
+# Module-level cache for agents. This ensures expensive initialization (like tool retrieval)
+# is executed only once per model.
+_agents: dict[str, BaseAgent] = {}
+
+
+@dataclass
+class AgentResponse:
+    content: str | None = None
+    auth_message: str | None = None
+    thread_id: str | None = None
 
 
 def get_agent(model: str = "gpt-4o") -> BaseAgent:
-    logger.debug(f"Initializing Agent using model: {model}")
-    return LangGraphAgent(model=model)
+    """
+    Create and cache a ReactAgent (which holds the tool definitions) for the given model.
+
+    This ensures that we only perform the expensive calls to get tools once,
+    and reuse the cached instance for subsequent invocations.
+    """
+    if model not in _agents:
+        _agents[model] = ReactAgent(model=model)
+    return _agents[model]
+
+
+def build_state(system: str, prompt: str, context: list[dict[str, str]] | None = None) -> dict:
+    """
+    Construct the conversation state by building a list of messages:
+      1. The first message is the system prompt.
+      2. Any prior context messages (if provided) are appended.
+      3. Finally, the user message is appended.
+    """
+    messages = [{"role": "system", "content": system}]
+    if context:
+        messages.extend(context)
+    messages.append({"role": "user", "content": slack_to_markdown(prompt)})
+    return {"messages": messages}
 
 
 def invoke_agent(
     user_id: str,
     prompt: str,
     context: list[dict[str, str]] | None = None,
-    system_content=DEFAULT_SYSTEM_CONTENT,
-    is_dm=False,
-):
-    if context:
-        messages = [
-            {"role": "system", "content": system_content},
-            *context,
-            {"role": "user", "content": slack_to_markdown(prompt)},
-        ]
-    else:
-        messages = [
-            {"role": "system", "content": system_content},
-            {"role": "user", "content": slack_to_markdown(prompt)},
-        ]
-
+    thread_id: str | None = None,
+    resume: bool = False,
+) -> AgentResponse:
+    """
+    Invoke the agent with the given prompt and conversation context.
+    If an authorization message is present in the computed state,
+    the agent will raise an interrupt. The returned AgentResponse includes
+    any auth_message.
+    """
     try:
         user_settings = get_user_state(user_id)
-        logger.debug(f"User settings: {user_settings}")
-
-        state = {"messages": messages}
         agent = get_agent(user_settings["model"])
+        enriched_system_content = get_system_prompt(user_timezone=user_settings.get("timezone"))
 
-        # If this is a DM and we need to include tool descriptions
-        if is_dm and system_content == DEFAULT_SYSTEM_CONTENT:
-            # Get tool descriptions from the agent
-            tool_descriptions = agent.get_tool_descriptions()
-            # Update the system content with tool descriptions
-            messages[0]["content"] = get_dm_system_content(tool_descriptions)
+        if not thread_id:
+            thread_id = str(uuid.uuid4())
 
-        response_state = agent.invoke(
-            state,
-            config={
-                "user_id": user_id,
-            },
-        )
-        print(response_state)
-
-        # Check for 'auth_url' in response_state
-        if response_state.get("auth_url"):
-            auth_url = response_state["auth_url"]
-            logger.debug(f"Auth URL found: {auth_url}")
-            return auth_url
-
-        # Check for 'interrupt_message' in response_state
-        if response_state.get("interrupt_message"):
-            resp = response_state["interrupt_message"]
-            return resp
-
-        # Ensure 'messages' is in response_state and has content
-        if response_state.get("messages"):
-            response_message = response_state["messages"][-1]
-            if response_message.content:
-                resp_content = response_message.content
-                resp = markdown_to_slack(redact_string(resp_content))
-                return resp
-            else:
-                logger.error("Response message content is empty.")
-                return "An error occurred: response content is empty."
+        if resume:
+            command = Command(
+                update={"resume_input": "yes"},
+                resume="post-auth",
+                goto="tools",
+            )
+            response_state = agent.graph.invoke(
+                command, config={"configurable": {"user_id": user_id, "thread_id": thread_id}}
+            )
         else:
-            logger.error("No messages found in response state.")
-            return "An error occurred: no response messages available."
-
+            state = build_state(enriched_system_content, prompt, context)
+            response_state = agent.invoke(
+                state, config={"configurable": {"user_id": user_id, "thread_id": thread_id}}
+            )
     except Exception:
         logger.exception("Error generating response")
-        return "An unexpected error occurred while processing your request."
+        return AgentResponse(
+            content="An unexpected error occurred while processing your request.",
+            thread_id=thread_id,
+        )
+    else:
+        last_message = response_state["messages"][-1]
+        response = AgentResponse(
+            content=last_message.content,
+            auth_message=response_state.get("auth_message"),
+            thread_id=thread_id,
+        )
+        logger.info(
+            f"Agent response: auth_message={'present' if response.auth_message else 'absent'}, "
+            f"thread_id={response.thread_id}, has_content={response.content is not None}"
+        )
+        return response

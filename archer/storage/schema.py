@@ -26,6 +26,15 @@ class StateStore:
     def update_state(self, user_identity: "UserIdentity") -> None:
         pass
 
+    def save_agent_state(self, state_id: str, state_data: dict) -> None:
+        pass
+
+    def get_agent_state(self, state_id: str) -> dict:
+        pass
+
+    def exists(self, user_id: str) -> bool:
+        pass
+
 
 class UserIdentity(TypedDict):
     user_id: str

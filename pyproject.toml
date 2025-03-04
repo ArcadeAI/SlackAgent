@@ -14,11 +14,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
-slack-bolt = "~1.20.1"
+slack-bolt = "~1.21.0"
 python-dotenv = "^1.0.1"
-langchain-openai = "~0.2.3"
-langchain-arcade = "1.0.*"
-fastapi = "^0.110.3"
+langchain-openai = "~0.3.7"
+langchain-arcade = "1.1.*"
+fastapi = {extras = ["standard"], version = "^0.110.3"}
 
 
 [tool.poetry.group.dev.dependencies]

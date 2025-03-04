@@ -2,13 +2,13 @@
 
 [[package]]
 name = "aiohappyeyeballs"
-version = "2.4.6"
+version = "2.4.8"
 description = "Happy Eyeballs for asyncio"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "aiohappyeyeballs-2.4.6-py3-none-any.whl", hash = "sha256:147ec992cf873d74f5062644332c539fcd42956dc69453fe5204195e560517e1"},
-    {file = "aiohappyeyeballs-2.4.6.tar.gz", hash = "sha256:9b05052f9042985d32ecbe4b59a77ae19c006a78f1344d7fdad69d28ded3d0b0"},
+    {file = "aiohappyeyeballs-2.4.8-py3-none-any.whl", hash = "sha256:6cac4f5dd6e34a9644e69cf9021ef679e4394f54e58a183056d12009e42ea9e3"},
+    {file = "aiohappyeyeballs-2.4.8.tar.gz", hash = "sha256:19728772cb12263077982d2f55453babd8bec6a052a926cd5c0c42796da8bf62"},
 ]
 
 [[package]]
@@ -163,13 +163,13 @@ trio = ["trio (>=0.26.1)"]
 
 [[package]]
 name = "arcadepy"
-version = "1.2.1"
+version = "1.1.1"
 description = "The official Python library for the Arcade API"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "arcadepy-1.2.1-py3-none-any.whl", hash = "sha256:6b1df58e7759061c4b42970f8796fd5bdd77e3cc0a5ee58ed86db779827a71af"},
-    {file = "arcadepy-1.2.1.tar.gz", hash = "sha256:67a6f076dfa5554ef65a18cfab352928a42d4546bf7f8d8ba6e6199b3e3fea23"},
+    {file = "arcadepy-1.1.1-py3-none-any.whl", hash = "sha256:744f2a6d93f8b0edb226b806dfad8f4ef5aec777ba422c267203491a02a52271"},
+    {file = "arcadepy-1.1.1.tar.gz", hash = "sha256:4fd6db88f941af7be69b1b923c9f01725583d52af54099beeb13d53435e81062"},
 ]
 
 [package.dependencies]
@@ -970,28 +970,28 @@ files = [
 
 [[package]]
 name = "langchain-arcade"
-version = "1.0.0"
-description = "An integration package connecting Arcade and LangChain/LangGraph"
+version = "1.1.0"
+description = "An integration package connecting Arcade and Langchain/LangGraph"
 optional = false
 python-versions = "<3.13,>=3.10"
 files = [
-    {file = "langchain_arcade-1.0.0-py3-none-any.whl", hash = "sha256:9a36c1d89d9544553c698dca0859521be02fb1e25bee05a16f7448407c295d4d"},
-    {file = "langchain_arcade-1.0.0.tar.gz", hash = "sha256:1bb8983b447189eb014544a80095fa483e661b718d3f08d0a2ab9dcb32e049c5"},
+    {file = "langchain_arcade-1.1.0-py3-none-any.whl", hash = "sha256:8a708806fdc4c3876b38adb2c8f7fc50b6951bd2913927b8bf0caa20d78ac9ac"},
+    {file = "langchain_arcade-1.1.0.tar.gz", hash = "sha256:ac913d1cd6453e8b695197601ee832a53bf4d5e06b2e170c99ac0e6518de509d"},
 ]
 
 [package.dependencies]
-arcadepy = ">=1.0.0,<2.0.0"
+arcadepy = "==1.1.*"
 langgraph = ">=0.2.67,<0.3.0"
 
 [[package]]
 name = "langchain-core"
-version = "0.3.39"
+version = "0.3.40"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "langchain_core-0.3.39-py3-none-any.whl", hash = "sha256:00f35e15e5f21d77320b3f8b816a1bf5de0b40b7809cd625dc3813b850a87fb2"},
-    {file = "langchain_core-0.3.39.tar.gz", hash = "sha256:97d49eccb1dea057b2efadae178bcc5e6472caa69c171fa4508fa6fb45f44c0e"},
+    {file = "langchain_core-0.3.40-py3-none-any.whl", hash = "sha256:9f31358741f10a13db8531e8288b8a5ae91904018c5c2e6f739d6645a98fca03"},
+    {file = "langchain_core-0.3.40.tar.gz", hash = "sha256:893a238b38491967c804662c1ec7c3e6ebaf223d1125331249c3cf3862ff2746"},
 ]
 
 [package.dependencies]
@@ -1008,29 +1008,29 @@ typing-extensions = ">=4.7"
 
 [[package]]
 name = "langchain-openai"
-version = "0.2.14"
+version = "0.3.7"
 description = "An integration package connecting OpenAI and LangChain"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "langchain_openai-0.2.14-py3-none-any.whl", hash = "sha256:d232496662f79ece9a11caf7d798ba863e559c771bc366814f7688e0fe664fe8"},
-    {file = "langchain_openai-0.2.14.tar.gz", hash = "sha256:7a514f309e356b182a337c0ed36ab3fbe34d9834a235a3b85cb7f91ae775d978"},
+    {file = "langchain_openai-0.3.7-py3-none-any.whl", hash = "sha256:0aefc7bdf8e7398d41e09c4313cace816df6438f2aa93d34f79523487310f0da"},
+    {file = "langchain_openai-0.3.7.tar.gz", hash = "sha256:b8b51a3aaa1cc3bda060651ea41145f7728219e8a7150b5404fb1e8446de9cef"},
 ]
 
 [package.dependencies]
-langchain-core = ">=0.3.27,<0.4.0"
+langchain-core = ">=0.3.39,<1.0.0"
 openai = ">=1.58.1,<2.0.0"
 tiktoken = ">=0.7,<1"
 
 [[package]]
 name = "langgraph"
-version = "0.2.74"
+version = "0.2.76"
 description = "Building stateful, multi-actor applications with LLMs"
 optional = false
 python-versions = "<4.0,>=3.9.0"
 files = [
-    {file = "langgraph-0.2.74-py3-none-any.whl", hash = "sha256:91a522df764e66068f1a6de09ea748cea0687912838f29218c1d1b92b1ca025f"},
-    {file = "langgraph-0.2.74.tar.gz", hash = "sha256:db6e63e0771e2e8fb17dc0e040007b32f009e0f114e35d8348e336eb15f068e5"},
+    {file = "langgraph-0.2.76-py3-none-any.whl", hash = "sha256:076b8b5d2fc5a9761c46a7618430cfa5c978a8012257c43cbc127b27e0fd7872"},
+    {file = "langgraph-0.2.76.tar.gz", hash = "sha256:688f8dcd9b6797ba78384599e0de944773000c75156ad1e186490e99e89fa5c0"},
 ]
 
 [package.dependencies]
@@ -1132,13 +1132,13 @@ files = [
 
 [[package]]
 name = "modal"
-version = "0.73.67"
+version = "0.73.81"
 description = "Python client library for Modal"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "modal-0.73.67-py3-none-any.whl", hash = "sha256:6766fe876194e2da55d1cba24d3123f13d116d53f53c37d3fda96aa82293a4af"},
-    {file = "modal-0.73.67.tar.gz", hash = "sha256:9fb0e4c8afd88d1f89126313defacc00eca4ba91c8941dce61044f3d6d421f3b"},
+    {file = "modal-0.73.81-py3-none-any.whl", hash = "sha256:9c9ce548c1bde97aeba07904f6754910667a97250b5a44eb4dd9797bc387c969"},
+    {file = "modal-0.73.81.tar.gz", hash = "sha256:9404481b1dcd2b926597f87afb9e1729caac8f49b8dc58302ba8e6f138d1be56"},
 ]
 
 [package.dependencies]
@@ -1411,13 +1411,13 @@ files = [
 
 [[package]]
 name = "openai"
-version = "1.64.0"
+version = "1.65.2"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "openai-1.64.0-py3-none-any.whl", hash = "sha256:20f85cde9e95e9fbb416e3cb5a6d3119c0b28308afd6e3cc47bf100623dac623"},
-    {file = "openai-1.64.0.tar.gz", hash = "sha256:2861053538704d61340da56e2f176853d19f1dc5704bc306b7597155f850d57a"},
+    {file = "openai-1.65.2-py3-none-any.whl", hash = "sha256:27d9fe8de876e31394c2553c4e6226378b6ed85e480f586ccfe25b7193fb1750"},
+    {file = "openai-1.65.2.tar.gz", hash = "sha256:729623efc3fd91c956f35dd387fa5c718edd528c4bed9f00b40ef290200fb2ce"},
 ]
 
 [package.dependencies]
@@ -1887,13 +1887,13 @@ testing = ["covdefaults (>=2.3)", "pytest (>=8.3.4)", "pytest-cov (>=6)", "pytes
 
 [[package]]
 name = "pytest"
-version = "8.3.4"
+version = "8.3.5"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-8.3.4-py3-none-any.whl", hash = "sha256:50e16d954148559c9a74109af1eaf0c945ba2d8f30f0a3d3335edde19788b6f6"},
-    {file = "pytest-8.3.4.tar.gz", hash = "sha256:965370d062bce11e73868e0335abac31b4d3de0e82f4007408d242b4f8610761"},
+    {file = "pytest-8.3.5-py3-none-any.whl", hash = "sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820"},
+    {file = "pytest-8.3.5.tar.gz", hash = "sha256:f4efe70cc14e511565ac476b57c279e12a855b11f48f212af1080ef2263d3845"},
 ]
 
 [package.dependencies]
@@ -2234,17 +2234,17 @@ tests = ["coverage", "mock", "repeated-test (>=2.2.1)", "sphinx"]
 
 [[package]]
 name = "slack-bolt"
-version = "1.20.1"
+version = "1.21.3"
 description = "The Bolt Framework for Python"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "slack_bolt-1.20.1-py2.py3-none-any.whl", hash = "sha256:8fa26e72b0e55c18c1d34a73558e7fe2150bdc7c947de780b938fdb1d7e854fe"},
-    {file = "slack_bolt-1.20.1.tar.gz", hash = "sha256:4657e592339797b9b804547a21e6b35dd8e2cd1eab676bfb23960660aae049fd"},
+    {file = "slack_bolt-1.21.3-py2.py3-none-any.whl", hash = "sha256:f5c41bfd5758db2023a7591e93d05ebb218aaae704e0dc382ae400bc1d5f2670"},
+    {file = "slack_bolt-1.21.3.tar.gz", hash = "sha256:f91ca5dc22da749a42e40a1885b466a4f2af1f65d40c544fccce56e4bb95f1fe"},
 ]
 
 [package.dependencies]
-slack-sdk = ">=3.26.0,<4"
+slack_sdk = ">=3.33.5,<4"
 
 [[package]]
 name = "slack-sdk"
@@ -2467,13 +2467,13 @@ telegram = ["requests"]
 
 [[package]]
 name = "typer"
-version = "0.15.1"
+version = "0.15.2"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "typer-0.15.1-py3-none-any.whl", hash = "sha256:7994fb7b8155b64d3402518560648446072864beefd44aa2dc36972a5972e847"},
-    {file = "typer-0.15.1.tar.gz", hash = "sha256:a0588c0a7fa68a1978a069818657778f86abe6ff5ea6abf472f940a08bfe4f0a"},
+    {file = "typer-0.15.2-py3-none-any.whl", hash = "sha256:46a499c6107d645a9c13f7ee46c5d5096cae6f5fc57dd11eccbbb9ae3e44ddfc"},
+    {file = "typer-0.15.2.tar.gz", hash = "sha256:ab2fab47533a813c49fe1f16b1a370fd5819099c00b119e0633df65f22144ba5"},
 ]
 
 [package.dependencies]
@@ -2846,4 +2846,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "0fec42ff5542f77e76fcabb14fe282eb1d23a9f45329f1ba3564a488cd5e03bb"
+content-hash = "0277f69903c544aef41079a7944c40ad46e62b3afb27d55b4b9c27734b2d867f"
