@@ -44,7 +44,7 @@ def handle_auth_complete(
         replies = client.conversations_replies(
             channel=channel_id,
             ts=thread_ts,
-            limit=15,
+            limit=10,
         )
         for message in replies.get("messages", []):
             # Determine role based on presence of bot_id

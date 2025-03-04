@@ -62,7 +62,7 @@ def create_fastapi_app() -> FastAPI:
     @fastapi_app.post("/slack/events")
     async def endpoint(req: Request):
         # Log as much detail as possible.
-        logger.info(
+        logger.debug(
             f"\nReceived {req.method} request\n"
             f"URL path: {req.url.path}\n"
             f"Query string: {req.url.query}\n"

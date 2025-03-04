@@ -1,14 +1,13 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import Any
 
 from langgraph.types import Command
 
 from archer.agent.agent import ReactAgent
 from archer.agent.base import BaseAgent
 from archer.agent.utils import slack_to_markdown
-from archer.defaults import MODELS, SYSTEM_CONTENT
+from archer.defaults import get_system_prompt
 from archer.storage.functions import get_user_state
 
 logger = logging.getLogger(__name__)
@@ -24,11 +23,6 @@ class AgentResponse:
     content: str | None = None
     auth_message: str | None = None
     thread_id: str | None = None
-    state: dict[str, Any] | None = None
-
-
-def get_available_models() -> list[dict[str, str]]:
-    return MODELS
 
 
 def get_agent(model: str = "gpt-4o") -> BaseAgent:
@@ -43,16 +37,14 @@ def get_agent(model: str = "gpt-4o") -> BaseAgent:
     return _agents[model]
 
 
-def build_state(
-    enriched_system_content: str, prompt: str, context: list[dict[str, str]] | None = None
-) -> dict:
+def build_state(system: str, prompt: str, context: list[dict[str, str]] | None = None) -> dict:
     """
     Construct the conversation state by building a list of messages:
       1. The first message is the system prompt.
       2. Any prior context messages (if provided) are appended.
-      3. Finally, the user message (after converting Slack markdown to standard Markdown) is appended.
+      3. Finally, the user message is appended.
     """
-    messages = [{"role": "system", "content": enriched_system_content}]
+    messages = [{"role": "system", "content": system}]
     if context:
         messages.extend(context)
     messages.append({"role": "user", "content": slack_to_markdown(prompt)})
@@ -63,8 +55,6 @@ def invoke_agent(
     user_id: str,
     prompt: str,
     context: list[dict[str, str]] | None = None,
-    system_content: str = SYSTEM_CONTENT,
-    state: dict | None = None,
     thread_id: str | None = None,
     resume: bool = False,
 ) -> AgentResponse:
@@ -77,16 +67,17 @@ def invoke_agent(
     try:
         user_settings = get_user_state(user_id)
         agent = get_agent(user_settings["model"])
-        enriched_system_content = agent.get_system_prompt(
-            user_timezone=user_settings.get("timezone")
-        )
+        enriched_system_content = get_system_prompt(user_timezone=user_settings.get("timezone"))
 
         if not thread_id:
             thread_id = str(uuid.uuid4())
 
-        state = state or {}
         if resume:
-            command = Command(update={"resume_input": "yes"}, resume="please!!!!", goto="tools")
+            command = Command(
+                update={"resume_input": "yes"},
+                resume="post-auth",
+                goto="tools",
+            )
             response_state = agent.graph.invoke(
                 command, config={"configurable": {"user_id": user_id, "thread_id": thread_id}}
             )
@@ -95,25 +86,21 @@ def invoke_agent(
             response_state = agent.invoke(
                 state, config={"configurable": {"user_id": user_id, "thread_id": thread_id}}
             )
-
-        # Grab the last message
-        last_message = response_state["messages"][-1]
-
-        response = AgentResponse(
-            content=last_message.content,
-            auth_message=response_state.get("auth_message"),
-            thread_id=thread_id,
-        )
-
-        logger.info(
-            f"Agent response: auth_message={'present' if response.auth_message else 'absent'}, "
-            f"thread_id={response.thread_id}, has_content={response.content is not None}"
-        )
-        return response
-
     except Exception:
         logger.exception("Error generating response")
         return AgentResponse(
             content="An unexpected error occurred while processing your request.",
             thread_id=thread_id,
         )
+    else:
+        last_message = response_state["messages"][-1]
+        response = AgentResponse(
+            content=last_message.content,
+            auth_message=response_state.get("auth_message"),
+            thread_id=thread_id,
+        )
+        logger.info(
+            f"Agent response: auth_message={'present' if response.auth_message else 'absent'}, "
+            f"thread_id={response.thread_id}, has_content={response.content is not None}"
+        )
+        return response

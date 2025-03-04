@@ -1,4 +1,3 @@
-
 from slack_bolt import App
 
 from archer.listeners.actions.auth_complete import handle_auth_complete

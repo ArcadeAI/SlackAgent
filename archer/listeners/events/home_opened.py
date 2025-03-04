@@ -2,8 +2,7 @@ from logging import Logger
 
 from slack_sdk import WebClient
 
-from archer.agent import get_available_models
-from archer.env import BOT_NAME  # TODO: move to defaults
+from archer.defaults import get_available_models
 from archer.storage.functions import get_user_state
 
 
@@ -47,7 +46,7 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
                         "type": "header",
                         "text": {
                             "type": "plain_text",
-                            "text": f"Welcome to {BOT_NAME}'s Home Page!",
+                            "text": "Archer Settings",
                             "emoji": True,
                         },
                     },
@@ -60,7 +59,7 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
                                 "elements": [
                                     {
                                         "type": "text",
-                                        "text": "Pick an option",
+                                        "text": "Select your preferred model from the dropdown menu below.",
                                         "style": {"bold": True},
                                     }
                                 ],

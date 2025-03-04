@@ -32,7 +32,9 @@ secrets = modal.Secret.from_dict({
 })
 
 
-@app.function(image=image, secrets=[secrets], volumes={"/data": vol}, keep_warm=1)
+@app.function(
+    image=image, secrets=[secrets], volumes={"/data": vol}, keep_warm=1, allow_concurrent_inputs=100
+)
 @asgi_app()
 def web_app():
     # Import here to ensure it happens inside the container

@@ -44,4 +44,3 @@ def update_user_state(user_id: str, provider: str | None = None, model: str | No
 
     store = get_store()
     store.update_state(user_state)
-

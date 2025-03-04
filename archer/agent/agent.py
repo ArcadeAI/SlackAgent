@@ -2,6 +2,7 @@ import logging
 import uuid
 
 from langchain_arcade import ArcadeToolManager
+from langchain_core.language_models.base import BaseLanguageModel
 from langchain_core.messages import ToolMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableConfig, RunnableLambda
@@ -12,9 +13,10 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.types import interrupt
 
 from archer.agent.base import BaseAgent
-from archer.defaults import TOOLKITS, get_system_content
+from archer.defaults import get_available_models, get_available_toolkits
 
 logger = logging.getLogger(__name__)
+
 
 class AgentState(MessagesState):
     """
@@ -65,29 +67,19 @@ def create_tool_node_with_fallback(tools: list) -> ToolNode:
 
 class ReactAgent(BaseAgent):
     """
-    A REACT-style LangGraph agent that handles tool calls using robust message
+    A LangGraph agent that handles tool calls using robust message
     extraction and integrates Arcade-based authorization when needed.
     """
 
-    # Class-level cache for tool descriptions.
-    _cached_tool_descriptions: dict[str, str] | None = None
-
     def __init__(self, model: str = "gpt-4o", tools: list[str] | None = None):
         super().__init__(model=model)
-        self.prompt = ChatPromptTemplate.from_messages([("placeholder", "{messages}")])
-        self.llm = ChatOpenAI(model=model)
         self.manager = ArcadeToolManager()
-        self.tools = self.manager.get_tools(tools=tools, toolkits=TOOLKITS, langgraph=False)
+        self.tools = self.manager.get_tools(
+            tools=tools, toolkits=get_available_toolkits(), langgraph=False
+        )
         self.tool_node = create_tool_node_with_fallback(self.tools)
-        self.llm_with_tools = self.llm.bind_tools(self.tools, parallel_tool_calls=True)
-        self.prompted_model = self.prompt | self.llm_with_tools
-
-        # Check if the class-level cache is set.
-        if ReactAgent._cached_tool_descriptions is None:
-            # Otherwise, perform the expensive retrieval and store the result.
-            ReactAgent._cached_tool_descriptions = self.get_tool_descriptions()
-        # Use the cached tool descriptions for this instance.
-        self.cached_tool_descriptions = ReactAgent._cached_tool_descriptions
+        # Initialize the chat model
+        self.prompted_model = self._init_chat_model(model, self.tools)
 
         # Create a memory saver for the graph
         self.memory = MemorySaver()
@@ -95,25 +87,24 @@ class ReactAgent(BaseAgent):
         # Setup the graph after initializing all components
         self.setup_graph()
 
-    def get_tool_descriptions(self) -> dict[str, str]:
+    def _init_chat_model(self, model: str, tools: list) -> BaseLanguageModel:
         """
-        Extract tool names and descriptions, cached.
+        Initialize the chat model with the given model name.
         """
-        tool_descriptions = {}
-        for tool in self.tools:
-            name = getattr(tool, "name", None)
-            description = getattr(tool, "description", None)
-            if name and description:
-                tool_descriptions[name] = description
-        return tool_descriptions
+        models = get_available_models()
+        record = models.get(model)
+        if not record:
+            raise ValueError(f"Model {model} not found")
 
-    def get_system_prompt(self, user_timezone: str | None = None) -> str:
-        """
-        Return the enriched system prompt using cached tool descriptions.
-        """
-        return get_system_content(
-            tool_descriptions=self.cached_tool_descriptions, user_timezone=user_timezone
-        )
+        if record["provider"] == "OpenAI":
+            llm = ChatOpenAI(model=model)
+        else:
+            raise ValueError(f"Provider {record['provider']} not supported")
+
+        prompt = ChatPromptTemplate.from_messages([("placeholder", "{messages}")])
+        llm_with_tools = llm.bind_tools(tools, parallel_tool_calls=record["parallel_tool_calling"])
+        prompted_model = prompt | llm_with_tools
+        return prompted_model
 
     def invoke(self, state: AgentState, config: RunnableConfig) -> AgentState:
         """
@@ -279,37 +270,7 @@ class ReactAgent(BaseAgent):
         self.workflow.add_edge("tools", "agent")
 
         self.graph = self.workflow.compile(checkpointer=self.memory, debug=True)
-        logger.info("REACT agent graph compiled successfully with memory checkpointing")
-
-    def get_state(self, thread_id: str) -> dict:
-        """
-        Get the current state of the graph for a given thread_id.
-
-        Args:
-            thread_id: The thread ID to get the state for
-
-        Returns:
-            dict: The current state of the graph, with at least a 'messages' key.
-        """
-        try:
-            snapshot = self.graph.get_state({"configurable": {"thread_id": thread_id}})
-            # Convert snapshot to dict if necessary
-            if isinstance(snapshot, dict):
-                state = snapshot
-            elif hasattr(snapshot, "state") and isinstance(snapshot.state, dict):
-                state = snapshot.state
-            elif hasattr(snapshot, "__dict__"):
-                state = snapshot.__dict__
-            else:
-                state = {}
-
-            if not state or not state.get("messages"):
-                return {"messages": []}
-            logger.info(f"STATE RETREIVED {state.get('messages')}")
-            return state
-        except Exception as e:
-            logger.warning(f"Could not get state for thread {thread_id}: {e}")
-            return {"messages": []}
+        logger.info("Agent graph compiled successfully with memory checkpointing")
 
     def __create_url_string_for_slack(self, tools_to_auth: dict[str, str]) -> str:
         """

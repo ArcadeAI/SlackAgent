@@ -66,7 +66,7 @@ def handle_auth_complete_button(
             },
         )
     except Exception as e:
-        logger.exception(f"Failed to open modal view: {e}")
+        logger.exception("Failed to open modal view")
         client.chat_postMessage(
             channel=channel_id,
             text=f":warning: Could not open authorization dialog: {e!s}",

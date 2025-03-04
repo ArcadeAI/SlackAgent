@@ -6,11 +6,12 @@ from slack_sdk import WebClient
 
 from archer.agent import invoke_agent
 from archer.agent.utils import markdown_to_slack
-from archer.defaults import DEFAULT_LOADING_TEXT
+from archer.defaults import DEFAULT_LOADING_TEXT, INITIAL_GREETING
 
 # Shared assistant instance
 assistant = Assistant()
-INITIAL_GREETING = "Hi! I'm Archer! How can I help you today?"
+
+
 
 # This listener is invoked when a human user opens an assistant thread
 @assistant.thread_started
@@ -58,7 +59,7 @@ def respond_in_assistant_thread(
     try:
         # Extract user_id, user_message, and thread_id from the payload
         user_message = payload.get("text", "")
-        user_id = payload.get("user")
+        user_id = "spart1111"  # payload.get("user")
         set_status(DEFAULT_LOADING_TEXT)
 
         # Generate a thread_id based on the channel and thread
@@ -133,7 +134,6 @@ def respond_in_assistant_thread(
                 markdown_to_slack(response.content) if hasattr(response, "content") else response
             )
             say(content)
-
 
     except Exception:
         logger.exception("Failed to handle a user message event")
