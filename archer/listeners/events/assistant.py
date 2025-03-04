@@ -59,7 +59,7 @@ def respond_in_assistant_thread(
     try:
         # Extract user_id, user_message, and thread_id from the payload
         user_message = payload.get("text", "")
-        user_id = "spart1111"  # payload.get("user")
+        user_id = payload.get("user")
         set_status(DEFAULT_LOADING_TEXT)
 
         # Generate a thread_id based on the channel and thread
