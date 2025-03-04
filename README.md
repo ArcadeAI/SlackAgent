@@ -11,7 +11,7 @@
 
 # Archer: Agentic Slack Assistant
 
-Archer is a LLM Agent that lives in your slack workspace and can help you with your work.
+Archer is a AI Agent that lives in your slack workspace and can help you with your work.
 Using Arcade, Archer can access and use various services like Google, Github, and more all
 from within Slack.
 
@@ -26,16 +26,16 @@ However, any of the available Arcade toolkits or custom toolkits you develop can
 used by Archer.
 
 
+----
+
 ## Host Archer for yourself
 
 ### Prerequisites
 
 - Python 3.10+
 - Poetry 1.8.4+ <2.0.0
-- Slack App
 - OpenAI API Key
 - Arcade API Key (see [Arcade](https://docs.arcade.dev/home/api-keys))
-- Modal
 
 
 ### Install Archer
@@ -55,8 +55,27 @@ make install
 
 ### Get a Slack App
 
+1. Open [https://api.slack.com/apps/new](https://api.slack.com/apps/new) and choose "From an app manifest"
+2. Choose the workspace where you want to install Archer
+3. Copy the contents of [config/manifest.json](./config/manifest.json) into the text box that says "*Paste your manifest code here*" (within the JSON tab) and click *Next*
+4. Review the configuration and click *Create*
+5. In the app configuration page, go to "App Home" in the left sidebar and ensure the Home Tab and Messages Tab are enabled
+6. Under "App Manifest" in the left sidebar, find the `event_subscriptions.request_url` and `interactivity.request_url` fields
+7. After you deploy Archer to Modal, replace `<INSERT>` in both URLs with your Modal app URL
+8. Click *Install to Workspace* and *Allow* on the screen that follows
 
-Instructions TODO
+You'll need two values from the Slack App for your .env file:
+- From **OAuth & Permissions**, copy the **Bot User OAuth Token** (for `SLACK_BOT_TOKEN`)
+- From **Basic Information**, copy the **Signing Secret** (for `SLACK_SIGNING_SECRET`)
+
+
+### Setup Modal
+
+If you haven't already, install the Modal CLI and set it up:
+```bash
+pip install modal
+modal setup
+```
 
 
 ### Setup Environment
@@ -90,15 +109,11 @@ LOG_LEVEL=INFO
 
 ### Deploy on Modal
 
-You may need to first install the modal CLI and login
-
-```bash
-pip install modal
-modal setup
-```
-
 Then deploy the app
 
 ```bash
 make deploy
 ```
+
+Modal will deploy the app and provide you with a URL to access it.
+
