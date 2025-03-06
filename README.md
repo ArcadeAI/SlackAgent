@@ -11,7 +11,7 @@
 
 # Archer: Agentic Slack Assistant
 
-Archer is a AI Agent that lives in your slack workspace and can help you with your work.
+Archer is an AI Agent that lives in your slack workspace and can help you with your work.
 Using Arcade, Archer can access and use various services like Google, Github, and more all
 from within Slack.
 
