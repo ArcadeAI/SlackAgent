@@ -59,7 +59,7 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
                                 "elements": [
                                     {
                                         "type": "text",
-                                        "text": "Select your preferred model from the dropdown menu below.",
+                                        "text": "Select your preferred model",
                                         "style": {"bold": True},
                                     }
                                 ],
