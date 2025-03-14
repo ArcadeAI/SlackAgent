@@ -1,4 +1,3 @@
-<!-- A placeholder for a toolkit logo or cover image. Remove or replace with your own. -->
 <h3 align="center">
   <a name="readme-top"></a>
   <img
@@ -11,9 +10,22 @@
 
 # Archer: Agentic Slack Assistant
 
-Archer is an AI Agent that lives in your slack workspace and can help you with your work.
+Archer is a AI Agent that lives in your slack workspace and can help you with your work.
 Using Arcade, Archer can access and use various services like Google, Github, and more all
 from within Slack.
+
+<div style="text-align: center;">
+<video width="640" height="360" style="border-radius: 10px;" controls>
+  <source src="https://raw.githubusercontent.com/ArcadeAI/SlackAgent/77334945accf5f2f7758c7fafd17520a198f6ba5/assets/Archer%20Demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+</div>
+
+
+
+
+
+## Features
 
 By default, Archer can interact with and use:
 - Google Mail
@@ -31,6 +43,21 @@ the ``defaults.py`` file.
 For the names of all Arcade cloud tools you can use ``arcade show`` in your terminal,
 or visit [https://docs.arcade.dev/integrations](https://docs.arcade.dev/integrations).
 
+## Agent
+
+The agent is built using the [LangGraph](https://langchain.com/langgraph) framework.
+
+The graph for the agent is shown below:
+
+<div style="text-align: center; width: 80%; height: 80%; margin: 0 auto; border-radius: 15px; overflow: hidden;">
+  <img src="https://raw.githubusercontent.com/ArcadeAI/SlackAgent/77334945accf5f2f7758c7fafd17520a198f6ba5/assets/Archer-Graph.png" alt="Archer Graph" />
+</div>
+
+<br>
+
+## Screenshots
+
+Archer uses the Slack Assistant UI so it's available on across the entire slack app.
 
 <div style="text-align: center;">
   <img style="display: inline-block; width: 45%; margin: 0 10px;" alt="Screenshot 2025-03-04 at 3 23 46 AM" src="https://github.com/user-attachments/assets/22db9c33-36bf-414f-b04f-c70234552144" />
@@ -38,9 +65,16 @@ or visit [https://docs.arcade.dev/integrations](https://docs.arcade.dev/integrat
 </div>
 
 
-----
 
-## Host Archer for yourself
+<br>
+<br>
+<br>
+
+## Self-Hosted Archer for your Slack
+
+Archer is not distributed as a Slack app, but you can easily self-host it the
+same way shown above.
+
 
 ### Prerequisites
 
