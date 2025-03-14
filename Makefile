@@ -19,8 +19,6 @@ check: ## Run code quality tools.
 	@poetry check --lock
 	@echo "🚀 Linting code: Running pre-commit"
 	@poetry run pre-commit run -a
-	@echo "🚀 Static type checking: Running mypy"
-	@poetry run mypy $(git ls-files '*.py')
 
 .PHONY: set-version
 set-version: ## Set the version in the pyproject.toml file

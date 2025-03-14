@@ -7,7 +7,7 @@ from modal import asgi_app
 load_dotenv()
 
 # Define your Modal stub
-app = modal.App("Archer")
+app = modal.App("SlackAgent")
 vol = modal.Volume.from_name("archer", create_if_missing=True)
 
 # Create a Modal image with necessary dependencies
@@ -36,7 +36,7 @@ secrets = modal.Secret.from_dict({
     image=image, secrets=[secrets], volumes={"/data": vol}, keep_warm=1, allow_concurrent_inputs=100
 )
 @asgi_app()
-def web_app():
+def slack_agent():
     # Import here to ensure it happens inside the container
     from archer.server import create_fastapi_app
 

@@ -12,7 +12,6 @@ from archer.defaults import DEFAULT_LOADING_TEXT, INITIAL_GREETING
 assistant = Assistant()
 
 
-
 # This listener is invoked when a human user opens an assistant thread
 @assistant.thread_started
 def start_assistant_thread(

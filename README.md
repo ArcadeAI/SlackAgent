@@ -25,6 +25,13 @@ By default, Archer can interact with and use:
 However, any of the available Arcade toolkits or custom toolkits you develop can also be
 used by Archer.
 
+You can change the prompt and tools used by Archer by editing
+the ``defaults.py`` file.
+
+For the names of all Arcade cloud tools you can use ``arcade show`` in your terminal,
+or visit [https://docs.arcade.dev/integrations](https://docs.arcade.dev/integrations).
+
+
 <div style="text-align: center;">
   <img style="display: inline-block; width: 45%; margin: 0 10px;" alt="Screenshot 2025-03-04 at 3 23 46 AM" src="https://github.com/user-attachments/assets/22db9c33-36bf-414f-b04f-c70234552144" />
   <img style="display: inline-block; width: 45%; margin: 0 10px;" alt="Screenshot 2025-03-04 at 3 25 23 AM" src="https://github.com/user-attachments/assets/f743d286-6bde-4995-b5a0-77e8d32f203d" />
@@ -122,3 +129,13 @@ make deploy
 
 Modal will deploy the app and provide you with a URL to access it.
 
+
+### Set Request URLs
+
+In the Slack App configuration page, go to "Event Subscriptions" in the left sidebar and find the `request_url` field.
+Replace `<INSERT>` with your Modal app URL.
+
+In the Slack App configuration page, go to "Interactivity & Shortcuts" in the left sidebar and find the `request_url` field.
+Replace `<INSERT>` with your Modal app URL.
+
+or just replace in the manifest.json file in the JSON tab in the Slack App configuration page.

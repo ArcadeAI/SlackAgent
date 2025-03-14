@@ -39,7 +39,6 @@ Don't use user names in your response.
 """
 
 
-
 TOOLKITS = ["github", "google", "search", "web"]
 
 MODELS = {

@@ -299,3 +299,6 @@ class ReactAgent(BaseAgent):
                 auth_message += f"{i}. *{tool_name}*: <{url}|{tool_name} Tool>\n"
 
         return auth_message
+
+
+GRAPH = ReactAgent().graph
