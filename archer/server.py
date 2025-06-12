@@ -68,6 +68,12 @@ def create_fastapi_app() -> FastAPI:
             f"Query string: {req.url.query}\n"
             f"Headers: {dict(req.headers)}\n"
         )
+        
+        # Handle Slack URL verification
+        body = await req.json()
+        if body.get("type") == "url_verification":
+            return {"challenge": body["challenge"]}
+            
         return await fastapi_handler.handle(req)
 
     return fastapi_app
